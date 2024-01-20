@@ -3,9 +3,12 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -13,15 +16,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["user_get", "user_get_join"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Groups(["user_get"])]
     private ?string $email = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Groups(["user_get"])]
     private ?string $username = null;
 
     #[ORM\Column]
+    #[Groups(["user_get"])]
     private array $roles = [];
 
     /**
@@ -29,6 +36,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    #[ORM\OneToMany(mappedBy: 'user_id', targetEntity: Profile::class)]
+    private Collection $profiles;
+
+    public function __construct()
+    {
+        $this->profiles = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -110,5 +125,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection<int, Profile>
+     */
+    public function getProfiles(): Collection
+    {
+        return $this->profiles;
+    }
+
+    public function addProfile(Profile $profile): static
+    {
+        if (!$this->profiles->contains($profile)) {
+            $this->profiles->add($profile);
+            $profile->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProfile(Profile $profile): static
+    {
+        if ($this->profiles->removeElement($profile)) {
+            if ($profile->getUser() === $this) {
+                $profile->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }
