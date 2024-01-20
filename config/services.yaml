@@ -25,3 +25,6 @@ services:
 
     App\Security\ProfileVoter:
         arguments: ['@security.token_storage']
+
+    App\Security\BankVoter:
+        arguments: ['@security.token_storage']
