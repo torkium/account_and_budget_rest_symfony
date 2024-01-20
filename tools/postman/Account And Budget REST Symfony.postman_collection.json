@@ -77,6 +77,227 @@
 			"response": []
 		},
 		{
+			"name": "Bank Create",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"label\": \"La Banque Postale\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bank Get",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bank Show",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank/1",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bank Edit",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"label\": \"La Banque Postale\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank/1/edit",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank",
+						"1",
+						"edit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bank Delete",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank/1",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Profile Create",
 			"request": {
 				"auth": {
@@ -84,7 +305,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MDU3NjE4OTMsImV4cCI6MTcwNTc2NTQ5Mywicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoidG90byJ9.lGJrVjYLhYOfhnHP_fVUmE0V0fByqpBdbkgV9WzhWYPnEb7IKHpIW0RpGlbzjiutA12g2T8HobgGoSASOGoL3mj8Lw9meH9zj9-yQ1V22d9FRIkZH6HuHj1BZbjW0cGbFcBM-v6PF7Jn3M0PrysQbYyFjBz5t6j3OytuYPowRXM-xOLGfCN2LOnnq-HBBZekSNc3wll2x99M8Ys7tDGlxWPXxf9x1e2zDKaNEkG5HEKFB7_xa7sV777wjofm5dQc1d67V2RPEmeRiKS8wo-HeJ_-O0iwM0M-_MfvLKPl-m1m8p-3nKU_ydKFLzVbqcEy-jeAMtfWP8Eq1NES_LJJ3Q",
+							"value": "{{jwt_token}}",
 							"type": "string"
 						}
 					]
@@ -130,7 +351,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MDU3NjE4OTMsImV4cCI6MTcwNTc2NTQ5Mywicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoidG90byJ9.lGJrVjYLhYOfhnHP_fVUmE0V0fByqpBdbkgV9WzhWYPnEb7IKHpIW0RpGlbzjiutA12g2T8HobgGoSASOGoL3mj8Lw9meH9zj9-yQ1V22d9FRIkZH6HuHj1BZbjW0cGbFcBM-v6PF7Jn3M0PrysQbYyFjBz5t6j3OytuYPowRXM-xOLGfCN2LOnnq-HBBZekSNc3wll2x99M8Ys7tDGlxWPXxf9x1e2zDKaNEkG5HEKFB7_xa7sV777wjofm5dQc1d67V2RPEmeRiKS8wo-HeJ_-O0iwM0M-_MfvLKPl-m1m8p-3nKU_ydKFLzVbqcEy-jeAMtfWP8Eq1NES_LJJ3Q",
+							"value": "{{jwt_token}}",
 							"type": "string"
 						}
 					]
@@ -176,7 +397,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MDU3NjUxMjgsImV4cCI6MTcwNTc2ODcyOCwicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoidG90byJ9.HKYnul2tKW9EIsZ1_-r7sJDNZDT6bPQVRbxukt7FSOquMmhZAeIS4uBjf8B0UnsecgJzZfWWFZxVCVtzZ3m2cs0oh5xqU6itAAhbWVXXEU8pKYbJPwLg2GAFsGMm0vXxhCChXkgovX-jr7wPdW3XDvTBVFJoFL9MbjTxuslKLw4VsuxNePsdc6k1ocrrJ870SXdjbrbowcUQ1qXzaJg7ciEe8CeJXCPxLr2BNWm7XrRF5BEdPFixisDGkXtChGaC461y9CyBXsjheatGrLwvAllbiQTbwP4WIG0gMOgDewLYS6Atans-4TOh_Z6MxBEUJxu3eyhi31_s280byfhoiw",
+							"value": "{{jwt_token}}",
 							"type": "string"
 						}
 					]
@@ -219,7 +440,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MDU3NTk4MzAsImV4cCI6MTcwNTc2MzQzMCwicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoidG9ya2l1bSJ9.kwuMi2nqtTXkKwCQcD_rv1HKZg_jGuk59fc9sH6-aX4Npc77Pszza3K0TXFpJcCeSUBwIWFc5Ux-K6MKOJfEPgb1F9gYIVAZcVJaAJfwT7qyJmylvm2ZLR1NU2oxRtKBuwDKdolA0E2q1c_1hyvhAPLMiiOWzetfW5fLsXNhusvdf-tys3de4vsmtKScRmmOJuyCJ-J0jBGvUIx8S01rCPUKb7-xK-SKkSktgREOvVbv0Vv15beRsTP5IH_fI2t5DVRLGLRJQ6q0X5R6i_UGa7ALglcQWzeckjYc8dQT0BneSqjqC86lmOGlyy0tdtD6JoSn2RGiYPAqm6GSlkehKQ",
+							"value": "{{jwt_token}}",
 							"type": "string"
 						}
 					]
@@ -263,7 +484,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MDU3NTk4MzAsImV4cCI6MTcwNTc2MzQzMCwicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoidG9ya2l1bSJ9.kwuMi2nqtTXkKwCQcD_rv1HKZg_jGuk59fc9sH6-aX4Npc77Pszza3K0TXFpJcCeSUBwIWFc5Ux-K6MKOJfEPgb1F9gYIVAZcVJaAJfwT7qyJmylvm2ZLR1NU2oxRtKBuwDKdolA0E2q1c_1hyvhAPLMiiOWzetfW5fLsXNhusvdf-tys3de4vsmtKScRmmOJuyCJ-J0jBGvUIx8S01rCPUKb7-xK-SKkSktgREOvVbv0Vv15beRsTP5IH_fI2t5DVRLGLRJQ6q0X5R6i_UGa7ALglcQWzeckjYc8dQT0BneSqjqC86lmOGlyy0tdtD6JoSn2RGiYPAqm6GSlkehKQ",
+							"value": "{{jwt_token}}",
 							"type": "string"
 						}
 					]
@@ -297,6 +518,33 @@
 				}
 			},
 			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
 		}
 	]
 }
