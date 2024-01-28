@@ -235,7 +235,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank/1/edit",
+					"raw": "http://127.0.0.1:8000/api/bank/3",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -247,8 +247,7 @@
 					"path": [
 						"api",
 						"bank",
-						"1",
-						"edit"
+						"3"
 					]
 				}
 			},
@@ -279,7 +278,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank/1",
+					"raw": "http://127.0.0.1:8000/api/bank/3",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -291,6 +290,236 @@
 					"path": [
 						"api",
 						"bank",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bank Account Create",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"label\": \"Compte principal LBP\",\r\n    \"account_number\": \"5xz026589\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank/2/bank-account/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank",
+						"2",
+						"bank-account",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bank Account Get",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank/2/bank-account",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank",
+						"2",
+						"bank-account"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bank Account Show",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank/2/bank-account/1",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank",
+						"2",
+						"bank-account",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bank Account Edit",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"label\": \"Compte principal LBP edited\",\r\n    \"account_number\": \"5xz026589_edited\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank/2/bank-account/1",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank",
+						"2",
+						"bank-account",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bank Account Delete",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank/2/bank-account/1",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank",
+						"2",
+						"bank-account",
 						"1"
 					]
 				}
