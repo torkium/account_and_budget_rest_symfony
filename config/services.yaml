@@ -28,3 +28,6 @@ services:
 
     App\Security\BankVoter:
         arguments: ['@security.token_storage']
+
+    App\Security\BankAccountVoter:
+        arguments: ['@security.token_storage']

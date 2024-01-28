@@ -52,7 +52,7 @@ class BankController extends AbstractController
         return $this->json($bank, 201, [], ['groups' => ['bank_get', 'user_get_join']]);
     }
 
-    #[Route('/{id}/edit', name: 'app_api_bank_edit', methods: 'PUT')]
+    #[Route('/{id}', name: 'app_api_bank_edit', methods: 'PUT')]
     public function edit(Request $request, Bank $bank, EntityManagerInterface $entityManager)
     {
         $this->denyAccessUnlessGranted('EDIT', $bank);
