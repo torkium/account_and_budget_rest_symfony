@@ -77,6 +77,226 @@
 			"response": []
 		},
 		{
+			"name": "Financial Category Create",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"label\": \"Investissement\",\r\n    \"parent_id\": 8\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/financial-category/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"financial-category",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Financial Category Get",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/financial-category",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"financial-category"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Financial Category Show",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/financial-category/6",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"financial-category",
+						"6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Financial Category Edit",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"label\": \"Investissement\",\r\n    \"parent_id\": 6\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/financial-category/7",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"financial-category",
+						"7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Financial Category Delete",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/financial-category/8",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"financial-category",
+						"8"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Bank Create",
 			"request": {
 				"auth": {
@@ -192,7 +412,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank/1",
+					"raw": "http://127.0.0.1:8000/api/bank/2",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -204,7 +424,7 @@
 					"path": [
 						"api",
 						"bank",
-						"1"
+						"2"
 					]
 				}
 			},
@@ -235,7 +455,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank/3",
+					"raw": "http://127.0.0.1:8000/api/bank/2",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -247,7 +467,7 @@
 					"path": [
 						"api",
 						"bank",
-						"3"
+						"2"
 					]
 				}
 			},
@@ -278,7 +498,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank/3",
+					"raw": "http://127.0.0.1:8000/api/bank/2",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -290,7 +510,7 @@
 					"path": [
 						"api",
 						"bank",
-						"3"
+						"2"
 					]
 				}
 			},
@@ -313,7 +533,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"label\": \"Compte principal LBP\",\r\n    \"account_number\": \"5xz026589\"\r\n}",
+					"raw": "{\r\n    \"label\": \"Compte perso LBP\",\r\n    \"account_number\": \"5xz026589perso\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -416,7 +636,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank/2/bank-account/1",
+					"raw": "http://127.0.0.1:8000/api/bank/2/bank-account/6",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -430,7 +650,7 @@
 						"bank",
 						"2",
 						"bank-account",
-						"1"
+						"6"
 					]
 				}
 			},
@@ -461,7 +681,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank/2/bank-account/1",
+					"raw": "http://127.0.0.1:8000/api/bank/2/bank-account/6",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -475,7 +695,7 @@
 						"bank",
 						"2",
 						"bank-account",
-						"1"
+						"6"
 					]
 				}
 			},
@@ -506,7 +726,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank/2/bank-account/1",
+					"raw": "http://127.0.0.1:8000/api/bank/2/bank-account/7",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -520,7 +740,7 @@
 						"bank",
 						"2",
 						"bank-account",
-						"1"
+						"7"
 					]
 				}
 			},
