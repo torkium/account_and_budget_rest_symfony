@@ -19,11 +19,6 @@ class Bank
     #[Groups(["bank_get"])]
     private ?string $label = null;
 
-    #[ORM\ManyToOne(inversedBy: 'banks')]
-    #[ORM\JoinColumn(nullable: false, name: 'user_id', referencedColumnName: 'id')]
-    #[Groups(["bank_get"])]
-    private ?User $user = null;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -44,18 +39,6 @@ class Bank
     public function setLabel(string $label): static
     {
         $this->label = $label;
-
-        return $this;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): static
-    {
-        $this->user = $user;
 
         return $this;
     }

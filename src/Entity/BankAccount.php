@@ -2,7 +2,11 @@
 
 namespace App\Entity;
 
+use App\Enum\PermissionEnum;
 use App\Repository\BankAccountRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Expr\Value;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups as Groups;
 
@@ -27,6 +31,14 @@ class BankAccount
     #[ORM\JoinColumn(nullable: false, name: 'bank_id', referencedColumnName: 'id')]
     #[Groups(["bank_account_get"])]
     private ?Bank $bank = null;
+
+    #[ORM\OneToMany(mappedBy: 'bankAccount', targetEntity: UserBankAccount::class, cascade:['persist', 'remove'])]
+    private Collection $userBankAccounts;
+
+    public function __construct()
+    {
+        $this->userBankAccounts = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -74,5 +86,41 @@ class BankAccount
         $this->bank = $bank;
 
         return $this;
+    }
+
+    public function getUserBankAccounts(): Collection
+    {
+        return $this->userBankAccounts;
+    }
+
+    public function addUserBankAccount(UserBankAccount $userBankAccount): static
+    {
+        if (!$this->userBankAccounts->contains($userBankAccount)) {
+            $this->userBankAccounts->add($userBankAccount);
+            $userBankAccount->setBankAccount($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserBankAccount(UserBankAccount $userBankAccount): static
+    {
+        if ($this->userBankAccounts->removeElement($userBankAccount)) {
+            if ($userBankAccount->getBankAccount() === $this) {
+                $userBankAccount->setBankAccount(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function hasPermission(User $user, PermissionEnum $permission): bool
+    {
+        foreach ($this->userBankAccounts as $userBankAccount) {
+            if ($userBankAccount->getUser() === $user && $userBankAccount->getPermissions()->value >= $permission->value) {
+                return true;
+            }
+        }
+        return false;
     }
 }

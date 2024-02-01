@@ -8,7 +8,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Bank;
 use App\Entity\BankAccount;
-use App\Repository\BankAccountRepository;
+use App\Entity\User;
+use App\Entity\UserBankAccount;
+use App\Enum\PermissionEnum;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 
@@ -23,11 +25,13 @@ class BankAccountController extends AbstractController
     }
 
     #[Route('/', name: 'app_api_bank_account_index', methods: 'GET')]
-    public function index(Bank $bank, BankAccountRepository $bankAccountRepository)
+    public function index(Bank $bank)
     {
         $this->denyAccessUnlessGranted('VIEW', $bank);
-        $bank_accounts = $bankAccountRepository->findBy(['bank' => $bank]);
-        return $this->json($bank_accounts, 200, [], ['groups' => ['bank_account_get', 'bank_get', 'user_get_join']]);
+        /** @var User $user */
+        $user = $this->getUser();
+        $bankAccounts = $user->getBankAccounts($bank);
+        return $this->json($bankAccounts, 200, [], ['groups' => ['bank_account_get', 'user_bank_account_get', 'bank_get', 'user_get_join']]);
     }
 
     #[Route('/{bank_account}', name: 'app_api_bank_account_show', methods: 'GET')]
@@ -41,24 +45,30 @@ class BankAccountController extends AbstractController
     #[Route('/', name: 'app_api_bank_account_create', methods: 'POST')]
     public function create(Request $request, Bank $bank, EntityManagerInterface $entityManager)
     {
-        $this->denyAccessUnlessGranted('EDIT', $bank);
         $data = json_decode($request->getContent(), true);
 
-        $bank_account = new BankAccount();
-        $bank_account->setLabel($data['label']);
-        $bank_account->setAccountNumber($data['account_number']);
-        $bank_account->setBank($bank);
+        $bankAccount = new BankAccount();
+        $bankAccount->setLabel($data['label']);
+        $bankAccount->setAccountNumber($data['account_number']);
+        $bankAccount->setBank($bank);
 
-        $entityManager->persist($bank_account);
+        $userBankAccount = new UserBankAccount();
+        $userBankAccount->setUser($this->getUser());
+        $userBankAccount->setBankAccount($bankAccount);
+        $userBankAccount->setPermissions(PermissionEnum::ADMIN);
+        $entityManager->persist($userBankAccount);
+
+        $bankAccount->addUserBankAccount($userBankAccount);
+
+        $entityManager->persist($bankAccount);
         $entityManager->flush();
 
-        return $this->json($bank_account, 201, [], ['groups' => ['bank_account_get', 'bank_get', 'user_get_join']]);
+        return $this->json($bankAccount, 201, [], ['groups' => ['bank_account_get', 'user_bank_account_get', 'bank_get', 'user_get_join']]);
     }
 
     #[Route('/{bank_account}', name: 'app_api_bank_account_edit', methods: 'PUT')]
     public function edit(Request $request,Bank $bank, BankAccount $bank_account, EntityManagerInterface $entityManager)
     {
-        $this->denyAccessUnlessGranted('EDIT', $bank);
         $this->denyAccessUnlessGranted('EDIT', $bank_account);
         $data = json_decode($request->getContent(), true);
 
@@ -67,13 +77,12 @@ class BankAccountController extends AbstractController
 
         $entityManager->flush();
 
-        return $this->json($bank, 200, [], ['groups' => ['bank_account_get', 'bank_get', 'user_get_join']]);
+        return $this->json($bank_account, 200, [], ['groups' => ['bank_account_get', 'bank_get', 'user_get_join']]);
     }
 
     #[Route('/{bank_account}', name: 'app_api_bank_account_delete', methods: 'DELETE')]
     public function delete(Bank $bank, BankAccount $bank_account, EntityManagerInterface $entityManager)
     {
-        $this->denyAccessUnlessGranted('EDIT', $bank);
         $this->denyAccessUnlessGranted('DELETE', $bank_account);
         $entityManager->remove($bank_account);
         $entityManager->flush();

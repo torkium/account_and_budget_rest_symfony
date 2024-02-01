@@ -35,10 +35,10 @@ class BankVoter extends Voter
         $bank = $subject;
 
         switch ($attribute) {
-            case 'VIEW':
+            case 'VIEW': return true;
             case 'EDIT':
             case 'DELETE':
-                return $user === $bank->getUser();
+                return $user->hasRole('ROLE_ADMIN');
         }
 
         return false;

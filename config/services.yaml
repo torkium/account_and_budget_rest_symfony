@@ -31,3 +31,6 @@ services:
 
     App\Security\BankAccountVoter:
         arguments: ['@security.token_storage']
+
+    App\Security\AdminVoter:
+        arguments: ['@security.token_storage']

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\PermissionEnum;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -31,6 +32,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(["user_get"])]
     private array $roles = [];
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserBankAccount::class)]
+    private Collection $userBankAccounts;
+
     /**
      * @var string The hashed password
      */
@@ -43,6 +47,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct()
     {
         $this->profiles = new ArrayCollection();
+        $this->userBankAccounts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -66,11 +71,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->username;
     }
-    
+
     public function setUsername(string $username): self
     {
         $this->username = $username;
-    
+
         return $this;
     }
 
@@ -101,6 +106,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->roles = $roles;
 
         return $this;
+    }
+
+    public function hasRole(string $role){
+        return in_array($role, $this->getRoles());
     }
 
     /**
@@ -154,5 +163,46 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+
+    public function getUserBankAccounts(Bank $bank = null, PermissionEnum $permission = null): Collection
+    {
+        return
+            $this->userBankAccounts
+            ->filter(function (UserBankAccount $userBankAccount) use ($bank) {
+                return $bank ? $userBankAccount->getBankAccount()->getBank() === $bank : true;
+            })
+            ->filter(function (UserBankAccount $userBankAccount) use ($permission) {
+                return $permission ? $userBankAccount->getPermissions() === $permission : true;
+            });
+    }
+
+    public function addUserBankAccount(UserBankAccount $userBankAccount): static
+    {
+        if (!$this->userBankAccounts->contains($userBankAccount)) {
+            $this->userBankAccounts->add($userBankAccount);
+            $userBankAccount->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserBankAccount(UserBankAccount $userBankAccount): static
+    {
+        if ($this->userBankAccounts->removeElement($userBankAccount)) {
+            if ($userBankAccount->getUser() === $this) {
+                $userBankAccount->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getBankAccounts(Bank $bank = null, PermissionEnum $permission = null): Collection
+    {
+        return $this->getUserBankAccounts($bank, $permission)->map(function (UserBankAccount $userBankAccount) {
+            return $userBankAccount->getBankAccount();
+        });
     }
 }
