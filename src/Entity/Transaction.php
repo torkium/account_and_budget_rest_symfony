@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
+use App\Repository\TransactionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: TransactionRepository::class)]
 class Transaction
 {
     #[ORM\Id]
