@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "c73e4861-e962-4bff-8c15-ef0427c097d8",
+		"_postman_id": "721c6e04-800a-419c-9d2a-ed5e65e3887c",
 		"name": "Account And Budget REST Symfony",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "28256650"
@@ -1181,6 +1181,233 @@
 						"bank-accounts",
 						"5",
 						"transactions",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scheduled Transaction Get",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						},
+						{
+							"key": "undefined",
+							"type": "any"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank-accounts/5/scheduled-transactions?start_date=2023-01-01&end_date=2023-03-31",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank-accounts",
+						"5",
+						"scheduled-transactions"
+					],
+					"query": [
+						{
+							"key": "start_date",
+							"value": "2023-01-01"
+						},
+						{
+							"key": "end_date",
+							"value": "2023-03-31"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scheduled Transaction Show",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						},
+						{
+							"key": "undefined",
+							"type": "any"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank-accounts/5/scheduled-transactions/1",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank-accounts",
+						"5",
+						"scheduled-transactions",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scheduled Transaction Create",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						},
+						{
+							"key": "undefined",
+							"type": "any"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"label\": \"New Scheduled Transaction\",\r\n    \"amount\": 100,\r\n    \"startDate\": \"2023-01-01\",\r\n    \"endDate\": \"2023-12-31\",\r\n    \"frequency\": \"monthly\",\r\n    \"financialCategory\": 3\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank-accounts/5/scheduled-transactions/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank-accounts",
+						"5",
+						"scheduled-transactions",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scheduled Transaction Edit",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						},
+						{
+							"key": "undefined",
+							"type": "any"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"label\": \"Updated Scheduled Transaction\",\r\n    \"amount\": 150,\r\n    \"startDate\": \"2023-02-01\",\r\n    \"endDate\": \"2024-01-31\",\r\n    \"frequency\": \"weekly\",\r\n    \"financialCategory\": 4\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank-accounts/5/scheduled-transactions/2",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank-accounts",
+						"5",
+						"scheduled-transactions",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scheduled Transaction Delete",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						},
+						{
+							"key": "undefined",
+							"type": "any"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank-accounts/5/scheduled-transactions/3",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank-accounts",
+						"5",
+						"scheduled-transactions",
 						"3"
 					]
 				}
