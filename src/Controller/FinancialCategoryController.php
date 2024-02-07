@@ -11,7 +11,7 @@ use App\Repository\FinancialCategoryRepository;
 use App\Service\FinancialCategoryService;
 use Doctrine\ORM\EntityManagerInterface;
 
-#[Route('/financial-category', name: 'app_api_financial_category')]
+#[Route('/financial-categories', name: 'app_api_financial_category')]
 class FinancialCategoryController extends AbstractController
 {
 
@@ -27,7 +27,7 @@ class FinancialCategoryController extends AbstractController
     public function show(FinancialCategory $financialCategory)
     {
         $this->denyAccessUnlessGranted('VIEW', $financialCategory);
-        
+
         return $this->json($financialCategory, 200, [], ['groups' => ['financial_category_get', 'financial_category_get_children']]);
     }
 
@@ -36,7 +36,7 @@ class FinancialCategoryController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
         $parent = null;
-        if(array_key_exists("parent_id", $data)){
+        if (array_key_exists("parent_id", $data)) {
             $parent = $financialCategoryRepository->findOneBy(['id' => $data['parent_id']]);
             $this->denyAccessUnlessGranted('VIEW', $parent);
         }
@@ -57,7 +57,7 @@ class FinancialCategoryController extends AbstractController
         $data = json_decode($request->getContent(), true);
 
         $parent = null;
-        if(array_key_exists("parent_id", $data) && $data['parent_id']){
+        if (array_key_exists("parent_id", $data) && $data['parent_id']) {
             $parent = $financialCategoryRepository->findOneBy(['id' => $data['parent_id']]);
             $this->denyAccessUnlessGranted('VIEW', $parent);
         }

@@ -12,17 +12,10 @@ use App\Entity\User;
 use App\Entity\UserBankAccount;
 use App\Enum\PermissionEnum;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
 
-#[Route('/bank/{bank}/bank-account', name: 'app_api_bank_account')]
+#[Route('/banks/{bank}/bank-accounts', name: 'app_api_bank_account')]
 class BankAccountController extends AbstractController
 {
-    private $security;
-
-    public function __construct(Security $security)
-    {
-        $this->security = $security;
-    }
 
     #[Route('/', name: 'app_api_bank_account_index', methods: 'GET')]
     public function index(Bank $bank)
@@ -67,7 +60,7 @@ class BankAccountController extends AbstractController
     }
 
     #[Route('/{bank_account}', name: 'app_api_bank_account_edit', methods: 'PUT')]
-    public function edit(Request $request,Bank $bank, BankAccount $bank_account, EntityManagerInterface $entityManager)
+    public function edit(Request $request, Bank $bank, BankAccount $bank_account, EntityManagerInterface $entityManager)
     {
         $this->denyAccessUnlessGranted('EDIT', $bank_account);
         $data = json_decode($request->getContent(), true);

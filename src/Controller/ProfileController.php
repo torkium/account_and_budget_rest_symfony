@@ -11,7 +11,7 @@ use App\Repository\ProfileRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 
-#[Route('/profile', name: 'app_api_profile')]
+#[Route('/profiles', name: 'app_api_profile')]
 class ProfileController extends AbstractController
 {
     private $security;
@@ -42,7 +42,7 @@ class ProfileController extends AbstractController
 
         $profile = new Profile();
         $profile->setLabel($data['label']);
-        
+
         $user = $this->security->getUser();
 
         $profile->setUser($user);

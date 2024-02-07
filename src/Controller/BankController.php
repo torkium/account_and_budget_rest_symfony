@@ -9,18 +9,11 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Bank;
 use App\Repository\BankRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/bank', name: 'app_api_bank')]
+#[Route('/banks', name: 'app_api_bank')]
 class BankController extends AbstractController
 {
-    private $security;
-
-    public function __construct(Security $security)
-    {
-        $this->security = $security;
-    }
 
     #[Route('/', name: 'app_api_bank_index', methods: 'GET')]
     public function index(BankRepository $bankRepository)
