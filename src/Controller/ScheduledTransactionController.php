@@ -21,21 +21,8 @@ class ScheduledTransactionController extends AbstractController
     public function index(Request $request, BankAccount $bankAccount, ScheduledTransactionRepository $scheduledTransactionRepository)
     {
         $this->denyAccessUnlessGranted('VIEW', $bankAccount);
-
-
-        $startDateInput = $request->query->get('start_date');
-        $endDateInput = $request->query->get('end_date');
-        $startDate = $startDateInput ? new \DateTime($startDateInput) : null;
-        $endDate = $endDateInput ? new \DateTime($endDateInput) : null;
-        if (!$startDate || !$endDate) {
-            return $this->json(['error' => 'start_date and end_date required.'], Response::HTTP_BAD_REQUEST);
-        }
-        $interval = $startDate->diff($endDate);
-        if ($interval->m > 3 || $interval->y > 0 || ($interval->m == 3 && $interval->d > 0)) {
-            return $this->json(['error' => 'Period should not be greater than 3 months.'], Response::HTTP_BAD_REQUEST);
-        }
-
-        $scheduledTransactions = $scheduledTransactionRepository->findScheduledTransactionsByDateRange($bankAccount, $startDate, $endDate);
+        
+        $scheduledTransactions = $scheduledTransactionRepository->findBy(['bankAccount' => $bankAccount->getId()]);
 
         return $this->json($scheduledTransactions, Response::HTTP_OK, [], ['groups' => ['scheduled_transaction_get', 'financial_category_get', 'financial_category_get_parent']]);
     }

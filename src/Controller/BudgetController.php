@@ -21,21 +21,8 @@ class BudgetController extends AbstractController
     public function index(Request $request, BankAccount $bankAccount, BudgetRepository $budgetRepository)
     {
         $this->denyAccessUnlessGranted('VIEW', $bankAccount);
-
-
-        $startDateInput = $request->query->get('start_date');
-        $endDateInput = $request->query->get('end_date');
-        $startDate = $startDateInput ? new \DateTime($startDateInput) : null;
-        $endDate = $endDateInput ? new \DateTime($endDateInput) : null;
-        if (!$startDate || !$endDate) {
-            return $this->json(['error' => 'start_date and end_date required.'], Response::HTTP_BAD_REQUEST);
-        }
-        $interval = $startDate->diff($endDate);
-        if ($interval->m > 3 || $interval->y > 0 || ($interval->m == 3 && $interval->d > 0)) {
-            return $this->json(['error' => 'Period should not be greater than 3 months.'], Response::HTTP_BAD_REQUEST);
-        }
-
-        $budgets = $budgetRepository->findBudgetsByDateRange($bankAccount, $startDate, $endDate);
+        
+        $budgets = $budgetRepository->findBy(['bankAccount' => $bankAccount->getId()]);
 
         return $this->json($budgets, Response::HTTP_OK, [], ['groups' => ['budget_get', 'financial_category_get', 'financial_category_get_parent']]);
     }
