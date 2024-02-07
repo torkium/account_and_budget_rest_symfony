@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "1a8fbad8-9757-476f-928e-52bf9523927c",
+		"_postman_id": "c73e4861-e962-4bff-8c15-ef0427c097d8",
 		"name": "Account And Budget REST Symfony",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "28256650"
@@ -101,7 +101,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/financial-category/",
+					"raw": "http://127.0.0.1:8000/api/financial-categories/",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -112,7 +112,7 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"financial-category",
+						"financial-categories",
 						""
 					]
 				}
@@ -147,7 +147,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/financial-category",
+					"raw": "http://127.0.0.1:8000/api/financial-categories",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -158,7 +158,7 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"financial-category"
+						"financial-categories"
 					]
 				}
 			},
@@ -192,7 +192,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/financial-category/6",
+					"raw": "http://127.0.0.1:8000/api/financial-categories/6",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -203,7 +203,7 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"financial-category",
+						"financial-categories",
 						"6"
 					]
 				}
@@ -235,7 +235,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/financial-category/7",
+					"raw": "http://127.0.0.1:8000/api/financial-categories/7",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -246,7 +246,7 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"financial-category",
+						"financial-categories",
 						"7"
 					]
 				}
@@ -278,7 +278,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/financial-category/8",
+					"raw": "http://127.0.0.1:8000/api/financial-categories/8",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -289,7 +289,7 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"financial-category",
+						"financial-categories",
 						"8"
 					]
 				}
@@ -321,7 +321,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank/",
+					"raw": "http://127.0.0.1:8000/api/banks/",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -332,7 +332,7 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"bank",
+						"banks",
 						""
 					]
 				}
@@ -367,7 +367,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank",
+					"raw": "http://127.0.0.1:8000/api/banks",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -378,7 +378,7 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"bank"
+						"banks"
 					]
 				}
 			},
@@ -412,7 +412,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank/2",
+					"raw": "http://127.0.0.1:8000/api/banks/2",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -423,7 +423,7 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"bank",
+						"banks",
 						"2"
 					]
 				}
@@ -455,7 +455,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank/2",
+					"raw": "http://127.0.0.1:8000/api/banks/2",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -466,7 +466,7 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"bank",
+						"banks",
 						"2"
 					]
 				}
@@ -498,7 +498,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank/2",
+					"raw": "http://127.0.0.1:8000/api/banks/2",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -509,7 +509,7 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"bank",
+						"banks",
 						"2"
 					]
 				}
@@ -541,7 +541,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank/2/bank-account/",
+					"raw": "http://127.0.0.1:8000/api/banks/2/bank-accounts/",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -552,9 +552,9 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"bank",
+						"banks",
 						"2",
-						"bank-account",
+						"bank-accounts",
 						""
 					]
 				}
@@ -589,7 +589,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank/2/bank-account",
+					"raw": "http://127.0.0.1:8000/api/banks/2/bank-accounts",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -600,9 +600,9 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"bank",
+						"banks",
 						"2",
-						"bank-account"
+						"bank-accounts"
 					]
 				}
 			},
@@ -636,7 +636,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank/2/bank-account/6",
+					"raw": "http://127.0.0.1:8000/api/banks/2/bank-accounts/6",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -647,9 +647,9 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"bank",
+						"banks",
 						"2",
-						"bank-account",
+						"bank-accounts",
 						"6"
 					]
 				}
@@ -681,7 +681,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank/2/bank-account/6",
+					"raw": "http://127.0.0.1:8000/api/banks/2/bank-accounts/6",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -692,9 +692,9 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"bank",
+						"banks",
 						"2",
-						"bank-account",
+						"bank-accounts",
 						"6"
 					]
 				}
@@ -726,7 +726,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank/2/bank-account/7",
+					"raw": "http://127.0.0.1:8000/api/banks/2/bank-accounts/7",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -737,9 +737,9 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"bank",
+						"banks",
 						"2",
-						"bank-account",
+						"bank-accounts",
 						"7"
 					]
 				}
@@ -771,7 +771,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/profile/",
+					"raw": "http://127.0.0.1:8000/api/profiles/",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -782,7 +782,7 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"profile",
+						"profiles",
 						""
 					]
 				}
@@ -817,7 +817,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/profile/",
+					"raw": "http://127.0.0.1:8000/api/profiles/",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -828,7 +828,7 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"profile",
+						"profiles",
 						""
 					]
 				}
@@ -863,7 +863,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/profile/2",
+					"raw": "http://127.0.0.1:8000/api/profiles/2",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -874,7 +874,7 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"profile",
+						"profiles",
 						"2"
 					]
 				}
@@ -906,7 +906,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/profile/1/edit",
+					"raw": "http://127.0.0.1:8000/api/profiles/1/edit",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -917,7 +917,7 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"profile",
+						"profiles",
 						"1",
 						"edit"
 					]
@@ -950,7 +950,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/profile/1",
+					"raw": "http://127.0.0.1:8000/api/profiles/1",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -961,8 +961,227 @@
 					"port": "8000",
 					"path": [
 						"api",
-						"profile",
+						"profiles",
 						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transaction Get",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank-accounts/8/transactions?start_date=2023-01-01&end_date=2023-03-31",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank-accounts",
+						"8",
+						"transactions"
+					],
+					"query": [
+						{
+							"key": "start_date",
+							"value": "2023-01-01"
+						},
+						{
+							"key": "end_date",
+							"value": "2023-03-31"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transaction Create",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"reference\": \"REF xxx0513\",\n    \"label\": \"Courses auchan\",\n    \"amount\": 150.00,\n    \"date\": \"2023-03-15\",\n    \"financialCategory\": 3\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank-accounts/8/transactions/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank-accounts",
+						"8",
+						"transactions",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transaction Show",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank-accounts/8/transactions/4",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank-accounts",
+						"8",
+						"transactions",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transaction Edit",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"reference\": \"REF xxx0515\",\n    \"label\": \"Courses auchan\",\n    \"amount\": 100.00,\n    \"date\": \"2023-03-16\",\n    \"financialCategory\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank-accounts/8/transactions/4",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank-accounts",
+						"8",
+						"transactions",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transaction Delete",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/bank-accounts/5/transactions/3",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"bank-accounts",
+						"5",
+						"transactions",
+						"3"
 					]
 				}
 			},
