@@ -1207,7 +1207,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank-accounts/5/scheduled-transactions?start_date=2023-01-01&end_date=2023-03-31",
+					"raw": "http://127.0.0.1:8000/api/bank-accounts/5/scheduled-transactions",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -1221,16 +1221,6 @@
 						"bank-accounts",
 						"5",
 						"scheduled-transactions"
-					],
-					"query": [
-						{
-							"key": "start_date",
-							"value": "2023-01-01"
-						},
-						{
-							"key": "end_date",
-							"value": "2023-03-31"
-						}
 					]
 				}
 			},
@@ -1434,7 +1424,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank-accounts/5/budget?start_date=2023-01-01&end_date=2023-03-31",
+					"raw": "http://127.0.0.1:8000/api/bank-accounts/5/budget",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -1448,16 +1438,6 @@
 						"bank-accounts",
 						"5",
 						"budget"
-					],
-					"query": [
-						{
-							"key": "start_date",
-							"value": "2023-01-01"
-						},
-						{
-							"key": "end_date",
-							"value": "2023-03-31"
-						}
 					]
 				}
 			},
