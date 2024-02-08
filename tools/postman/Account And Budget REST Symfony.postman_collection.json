@@ -1123,7 +1123,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"reference\": \"REF xxx0515\",\n    \"label\": \"Courses auchan\",\n    \"amount\": 100.00,\n    \"date\": \"2023-03-16\",\n    \"financialCategory\": 1\n}",
+					"raw": "{\n    \"reference\": \"REF xxx0515\",\n    \"label\": \"Courses auchan\",\n    \"amount\": 100.00,\n    \"date\": \"2023-03-16\",\n    \"financialCategory\": 3,\n    \"scheduledTransactionId\": 1\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -1131,7 +1131,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/bank-accounts/8/transactions/4",
+					"raw": "http://127.0.0.1:8000/api/bank-accounts/5/transactions/7",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -1143,9 +1143,9 @@
 					"path": [
 						"api",
 						"bank-accounts",
-						"8",
+						"5",
 						"transactions",
-						"4"
+						"7"
 					]
 				}
 			},
