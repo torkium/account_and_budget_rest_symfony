@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Transaction;
 use App\Entity\BankAccount;
+use App\Entity\ScheduledTransaction;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -34,5 +35,18 @@ class TransactionRepository extends ServiceEntityRepository
             ->orderBy('t.date', 'ASC');
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function unsetScheduledTransactionForAll(ScheduledTransaction $scheduledTransaction)
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->update()
+            ->set('t.scheduledTransaction', ':null')
+            ->where('t.scheduledTransaction = :scheduledTransaction')
+            ->setParameter('null', null)
+            ->setParameter('scheduledTransaction', $scheduledTransaction)
+            ->getQuery();
+
+        return $qb->execute();
     }
 }

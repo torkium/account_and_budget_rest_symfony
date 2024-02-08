@@ -34,3 +34,7 @@ services:
 
     App\Security\AdminVoter:
         arguments: ['@security.token_storage']
+
+    App\EventListener\ScheduledTransactionListener:
+        tags:
+            - { name: doctrine.event_listener, event: preRemove }
