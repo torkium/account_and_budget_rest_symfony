@@ -11,6 +11,7 @@ use App\Entity\BankAccount;
 use App\Repository\TransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\FinancialCategoryRepository;
+use App\Repository\ScheduledTransactionRepository;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Route('/bank-accounts/{bankAccount}/transactions', name: 'app_api_transaction')]
@@ -51,7 +52,7 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/', name: 'app_api_transaction_create', methods: 'POST')]
-    public function create(Request $request, BankAccount $bankAccount, EntityManagerInterface $entityManager, FinancialCategoryRepository $financialCategoryRepository)
+    public function create(Request $request, BankAccount $bankAccount, EntityManagerInterface $entityManager, FinancialCategoryRepository $financialCategoryRepository, ScheduledTransactionRepository $scheduledTransactionRepository)
     {
         $this->denyAccessUnlessGranted('EDIT', $bankAccount);
         $data = json_decode($request->getContent(), true);
@@ -69,14 +70,29 @@ class TransactionController extends AbstractController
             $transaction->setFinancialCategory($financialCategory);
         }
 
+
+        if (isset($data['scheduledTransactionId'])) {
+            $scheduledTransaction = $scheduledTransactionRepository->find($data['scheduledTransactionId']);
+            if ($scheduledTransaction) {
+                $this->denyAccessUnlessGranted('VIEW', $scheduledTransaction);
+                if ($scheduledTransaction->getBankAccount()->getId() !== $transaction->getBankAccount()->getId()) {
+                    return $this->json(['error' => 'Transaction and SheduledTransaction are not linked to the same bank account.'], Response::HTTP_BAD_REQUEST);
+                }
+                if ($scheduledTransaction->getFinancialCategory()->getId() !== $transaction->getFinancialCategory()->getId()) {
+                    return $this->json(['error' => 'Transaction and SheduledTransaction are not linked to the same financial category.'], Response::HTTP_BAD_REQUEST);
+                }
+                $transaction->setScheduledTransaction($scheduledTransaction);
+            }
+        }
+
         $entityManager->persist($transaction);
         $entityManager->flush();
 
-        return $this->json($transaction, 201, [], ['groups' => ['transaction_get', 'financial_category_get', 'financial_category_get_parent']]);
+        return $this->json($transaction, 201, [], ['groups' => ['transaction_get', 'financial_category_get', 'financial_category_get_parent', 'scheduled_transaction_get']]);
     }
 
     #[Route('/{transaction}', name: 'app_api_transaction_edit', methods: 'PUT')]
-    public function edit(Request $request, BankAccount $bankAccount, Transaction $transaction, EntityManagerInterface $entityManager, FinancialCategoryRepository $financialCategoryRepository)
+    public function edit(Request $request, BankAccount $bankAccount, Transaction $transaction, EntityManagerInterface $entityManager, FinancialCategoryRepository $financialCategoryRepository, ScheduledTransactionRepository $scheduledTransactionRepository)
     {
         if ($this->isTransactionOnBankAccount($bankAccount, $transaction)) {
             return $this->json(['error' => 'Transaction is not linked to this bank account.'], Response::HTTP_BAD_REQUEST);
@@ -96,9 +112,25 @@ class TransactionController extends AbstractController
             $transaction->setFinancialCategory($financialCategory);
         }
 
+        if (isset($data['scheduledTransactionId'])) {
+            $scheduledTransaction = $scheduledTransactionRepository->find($data['scheduledTransactionId']);
+            if ($scheduledTransaction) {
+                $this->denyAccessUnlessGranted('VIEW', $scheduledTransaction);
+                if ($scheduledTransaction->getBankAccount()->getId() !== $transaction->getBankAccount()->getId()) {
+                    return $this->json(['error' => 'Transaction and SheduledTransaction are not linked to the same bank account.'], Response::HTTP_BAD_REQUEST);
+                }
+                if ($scheduledTransaction->getFinancialCategory()->getId() !== $transaction->getFinancialCategory()->getId()) {
+                    return $this->json(['error' => 'Transaction and SheduledTransaction are not linked to the same financial category.'], Response::HTTP_BAD_REQUEST);
+                }
+                $transaction->setScheduledTransaction($scheduledTransaction);
+            } else {
+                $transaction->setScheduledTransaction(null);
+            }
+        }
+
         $entityManager->flush();
 
-        return $this->json($transaction, 200, [], ['groups' => ['transaction_get', 'financial_category_get', 'financial_category_get_parent']]);
+        return $this->json($transaction, 200, [], ['groups' => ['transaction_get', 'financial_category_get', 'financial_category_get_parent', 'scheduled_transaction_get']]);
     }
 
     #[Route('/{transaction}', name: 'app_api_transaction_delete', methods: 'DELETE')]

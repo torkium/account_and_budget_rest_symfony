@@ -40,6 +40,11 @@ class Transaction
     #[Groups(["bank_account_get"])]
     private BankAccount $bankAccount;
 
+    #[ORM\ManyToOne(targetEntity: ScheduledTransaction::class, inversedBy: 'transactions')]
+    #[ORM\JoinColumn(nullable: true)]
+    #[Groups(["scheduled_transaction_get"])]
+    private ScheduledTransaction | null $scheduledTransaction;
+
     // Getters and Setters
 
     public function getId(): ?int
@@ -115,6 +120,18 @@ class Transaction
     public function setBankAccount(BankAccount $bankAccount): self
     {
         $this->bankAccount = $bankAccount;
+
+        return $this;
+    }
+
+    public function getScheduledTransaction(): ScheduledTransaction | null
+    {
+        return $this->scheduledTransaction;
+    }
+
+    public function setScheduledTransaction(ScheduledTransaction | null $scheduledTransaction): self
+    {
+        $this->scheduledTransaction = $scheduledTransaction;
 
         return $this;
     }
