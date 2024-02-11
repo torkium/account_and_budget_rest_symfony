@@ -32,6 +32,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(["user_get"])]
     private array $roles = [];
 
+    #[ORM\OneToOne(mappedBy: 'user', targetEntity: UserSetting::class)]
+    #[Groups(["user_get"])]
+    private ?UserSetting $userSetting = null;
+
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserBankAccount::class)]
     private Collection $userBankAccounts;
 
@@ -108,7 +112,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function hasRole(string $role){
+    public function hasRole(string $role)
+    {
         return in_array($role, $this->getRoles());
     }
 
@@ -165,6 +170,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getUserSetting(): ?UserSetting
+    {
+        return $this->userSetting;
+    }
+
+    public function setUserSetting(?UserSetting $userSetting): self
+    {
+        $this->userSetting = $userSetting->getUser() !== $this ? null : $userSetting;
+        return $this;
+    }
 
     public function getUserBankAccounts(Bank $bank = null, PermissionEnum $permission = null): Collection
     {
