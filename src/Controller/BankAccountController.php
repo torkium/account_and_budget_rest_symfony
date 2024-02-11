@@ -74,7 +74,7 @@ class BankAccountController extends AbstractController
     }
 
     #[Route('/{bank_account}', name: 'app_api_bank_account_delete', methods: 'DELETE')]
-    public function delete(Bank $bank, BankAccount $bank_account, EntityManagerInterface $entityManager)
+    public function delete(BankAccount $bank_account, EntityManagerInterface $entityManager)
     {
         $this->denyAccessUnlessGranted('DELETE', $bank_account);
         $entityManager->remove($bank_account);

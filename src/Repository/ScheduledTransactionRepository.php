@@ -26,11 +26,14 @@ class ScheduledTransactionRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('st')
             ->andWhere('st.bankAccount = :bankAccount')
-            ->andWhere('st.startDate >= :startDate')
-            ->andWhere('st.endDate <= :endDate OR st.endDate IS NULL')
+            ->andWhere('(
+                (st.startDate <= :startDate AND (st.endDate Is NULL OR st.endDate >= :startDate))
+                OR
+                (st.startDate >= :startDate AND (st.endDate Is NULL OR st.startDate <= :endDate))
+            )')
             ->setParameter('bankAccount', $bankAccount)
-            ->setParameter('startDate', $startDate)
-            ->setParameter('endDate', $endDate)
+            ->setParameter('startDate', $startDate->format("Y-m-d"))
+            ->setParameter('endDate', $endDate->format("Y-m-d"))
             ->getQuery()
             ->getResult();
     }

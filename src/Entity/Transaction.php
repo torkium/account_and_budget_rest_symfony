@@ -27,7 +27,7 @@ class Transaction
     #[Groups(["transaction_get"])]
     private float $amount;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'date')]
     #[Groups(["transaction_get"])]
     private \DateTimeInterface $date;
 

@@ -30,8 +30,8 @@ class TransactionRepository extends ServiceEntityRepository
             ->andWhere('t.date >= :startDate')
             ->andWhere('t.date <= :endDate')
             ->setParameter('bankAccount', $bankAccount)
-            ->setParameter('startDate', $startDate)
-            ->setParameter('endDate', $endDate)
+            ->setParameter('startDate', $startDate->format("Y-m-d"))
+            ->setParameter('endDate', $endDate->format("Y-m-d"))
             ->orderBy('t.date', 'ASC');
 
         return $qb->getQuery()->getResult();

@@ -12,6 +12,7 @@ use App\Repository\TransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\FinancialCategoryRepository;
 use App\Repository\ScheduledTransactionRepository;
+use App\Service\ScheduledTransactionService;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Route('/bank-accounts/{bankAccount}/transactions', name: 'app_api_transaction')]
@@ -19,7 +20,7 @@ class TransactionController extends AbstractController
 {
 
     #[Route('/', name: 'app_api_transaction_index', methods: 'GET')]
-    public function index(Request $request, BankAccount $bankAccount, TransactionRepository $transactionRepository)
+    public function index(Request $request, BankAccount $bankAccount, TransactionRepository $transactionRepository, ScheduledTransactionRepository $scheduledTransactionRepository, ScheduledTransactionService $scheduledTransactionService)
     {
         $this->denyAccessUnlessGranted('VIEW', $bankAccount);
 
@@ -35,9 +36,20 @@ class TransactionController extends AbstractController
             return $this->json(['error' => 'Period should not be greater than 3 months.'], Response::HTTP_BAD_REQUEST);
         }
 
-        $transactions = $transactionRepository->findTransactionsByDateRange($bankAccount, $startDate, $endDate);
+        $realTransactions = $transactionRepository->findTransactionsByDateRange($bankAccount, $startDate, $endDate);
 
-        return $this->json($transactions, Response::HTTP_OK, [], ['groups' => ['transaction_get', 'financial_category_get', 'financial_category_get_parent']]);
+        $applicableScheduledTransactions = $scheduledTransactionRepository->findScheduledTransactionsByDateRange($bankAccount, $startDate, $endDate);
+        $predictedTransactions = [];
+        foreach ($applicableScheduledTransactions as $scheduledTransaction) {
+            $predictedTransactions = array_merge($predictedTransactions, $scheduledTransactionService->generateTransactionsForPeriod($scheduledTransaction, $startDate, $endDate));
+        }
+
+        $allTransactions = array_merge($realTransactions, $predictedTransactions);
+        usort($allTransactions, function($a, $b) {
+            return $a->getDate() <=> $b->getDate();
+        });
+
+        return $this->json($allTransactions, Response::HTTP_OK, [], ['groups' => ['transaction_get', 'financial_category_get', 'financial_category_get_parent']]);
     }
 
     #[Route('/{transaction}', name: 'app_api_transaction_show', methods: 'GET')]

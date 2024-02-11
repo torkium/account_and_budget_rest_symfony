@@ -6,7 +6,6 @@ use App\Enum\PermissionEnum;
 use App\Repository\BankAccountRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\Expr\Value;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups as Groups;
 
@@ -32,7 +31,7 @@ class BankAccount
     #[Groups(["bank_account_get"])]
     private ?Bank $bank = null;
 
-    #[ORM\OneToMany(mappedBy: 'bankAccount', targetEntity: UserBankAccount::class, cascade:['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'bankAccount', targetEntity: UserBankAccount::class, cascade: ['persist', 'remove'])]
     private Collection $userBankAccounts;
 
     public function __construct()
