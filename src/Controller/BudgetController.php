@@ -13,6 +13,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Enum\FrequencyEnum;
+use App\Repository\ScheduledTransactionRepository;
+use App\Repository\TransactionRepository;
+use App\Service\BudgetService;
+use App\Service\FinancialCategoryService;
+use App\Service\ScheduledTransactionService;
 
 #[Route('/bank-accounts/{bankAccount}/budget', name: 'app_api_budget')]
 class BudgetController extends AbstractController
@@ -21,13 +26,13 @@ class BudgetController extends AbstractController
     public function index(Request $request, BankAccount $bankAccount, BudgetRepository $budgetRepository)
     {
         $this->denyAccessUnlessGranted('VIEW', $bankAccount);
-        
+
         $budgets = $budgetRepository->findBy(['bankAccount' => $bankAccount->getId()]);
 
         return $this->json($budgets, Response::HTTP_OK, [], ['groups' => ['budget_get', 'financial_category_get', 'financial_category_get_parent']]);
     }
 
-    #[Route('/{budget}', name: 'app_api_budget_show', methods: 'GET')]
+    #[Route('/{budget}', name: 'app_api_budget_show', methods: 'GET', requirements: ['budget' => '\d+'])]
     public function show(BankAccount $bankAccount, Budget $budget)
     {
         if ($this->isBudgetOnBankAccount($bankAccount, $budget)) {
@@ -64,7 +69,7 @@ class BudgetController extends AbstractController
         return $this->json($budget, Response::HTTP_CREATED, [], ['groups' => ['budget_get', 'financial_category_get', 'financial_category_get_parent']]);
     }
 
-    #[Route('/{budget}', name: 'app_api_budget_edit', methods: 'PUT')]
+    #[Route('/{budget}', name: 'app_api_budget_edit', methods: 'PUT', requirements: ['budget' => '\d+'])]
     public function edit(Request $request, BankAccount $bankAccount, Budget $budget, EntityManagerInterface $entityManager, FinancialCategoryRepository $financialCategoryRepository)
     {
         if ($this->isBudgetOnBankAccount($bankAccount, $budget)) {
@@ -91,7 +96,7 @@ class BudgetController extends AbstractController
         return $this->json($budget, Response::HTTP_OK, [], ['groups' => ['budget_get', 'financial_category_get', 'financial_category_get_parent']]);
     }
 
-    #[Route('/{budget}', name: 'app_api_budget_delete', methods: 'DELETE')]
+    #[Route('/{budget}', name: 'app_api_budget_delete', methods: 'DELETE', requirements: ['budget' => '\d+'])]
     public function delete(BankAccount $bankAccount, Budget $budget, EntityManagerInterface $entityManager)
     {
         if ($this->isBudgetOnBankAccount($bankAccount, $budget)) {
@@ -103,6 +108,25 @@ class BudgetController extends AbstractController
         $entityManager->flush();
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route('/overview', name: 'app_api_budget_overview', methods: 'GET')]
+    public function overview(Request $request, BankAccount $bankAccount, BudgetService $budgetService): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('VIEW', $bankAccount);
+    
+        $startDateInput = $request->query->get('start_date');
+        $endDateInput = $request->query->get('end_date');
+        $startDate = $startDateInput ? new \DateTime($startDateInput) : null;
+        $endDate = $endDateInput ? new \DateTime($endDateInput) : null;
+    
+        if (!$startDate || !$endDate) {
+            return $this->json(['error' => 'start_date and end_date required.'], Response::HTTP_BAD_REQUEST);
+        }
+    
+        $budgetSummaries = $budgetService->calculateBudgetSummary($bankAccount, $startDate, $endDate);
+    
+        return $this->json($budgetSummaries, Response::HTTP_OK, [], ['groups' => ['budget_get', 'financial_category_get', 'financial_category_get_children', 'budget_summary_get']]);
     }
 
     protected function isBudgetOnBankAccount(BankAccount $bankAccount, Budget $budget)

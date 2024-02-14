@@ -26,8 +26,8 @@ class BudgetRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('b')
             ->andWhere('b.bankAccount = :bankAccount')
-            ->andWhere('b.startDate >= :startDate')
-            ->andWhere('b.endDate <= :endDate OR b.endDate IS NULL')
+            ->andWhere('b.startDate <= :startDate')
+            ->andWhere('b.endDate >= :endDate OR b.endDate IS NULL')
             ->setParameter('bankAccount', $bankAccount)
             ->setParameter('startDate', $startDate)
             ->setParameter('endDate', $endDate)

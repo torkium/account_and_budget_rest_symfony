@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\ScheduledTransaction;
 use App\Entity\BankAccount;
+use App\Entity\FinancialCategory;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -22,16 +23,24 @@ class ScheduledTransactionRepository extends ServiceEntityRepository
         parent::__construct($registry, ScheduledTransaction::class);
     }
 
-    public function findScheduledTransactionsByDateRange(BankAccount $bankAccount, \DateTime $startDate, \DateTime $endDate)
+    public function findScheduledTransactionsByDateRange(BankAccount $bankAccount, \DateTime $startDate, \DateTime $endDate, array $financialCategories = null)
     {
-        return $this->createQueryBuilder('st')
+        $qb = $this->createQueryBuilder('st')
             ->andWhere('st.bankAccount = :bankAccount')
             ->andWhere('(
                 (st.startDate <= :startDate AND (st.endDate Is NULL OR st.endDate >= :startDate))
                 OR
                 (st.startDate >= :startDate AND (st.endDate Is NULL OR st.startDate <= :endDate))
-            )')
-            ->setParameter('bankAccount', $bankAccount)
+            )');
+        if($financialCategories){
+            $financialCategoriesIds = array_map(function($financialCategory) {
+                return $financialCategory->getId();
+            }, $financialCategories);
+
+            $qb->andWhere($qb->expr()->in('st.financialCategory', $financialCategoriesIds));
+        }
+
+        return $qb->setParameter('bankAccount', $bankAccount)
             ->setParameter('startDate', $startDate->format("Y-m-d"))
             ->setParameter('endDate', $endDate->format("Y-m-d"))
             ->getQuery()

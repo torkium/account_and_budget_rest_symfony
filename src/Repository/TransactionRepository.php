@@ -23,7 +23,7 @@ class TransactionRepository extends ServiceEntityRepository
         parent::__construct($registry, Transaction::class);
     }
 
-    public function findTransactionsByDateRange(BankAccount $bankAccount, \DateTime $startDate, \DateTime $endDate): array
+    public function findTransactionsByDateRange(BankAccount $bankAccount, \DateTime $startDate, \DateTime $endDate, ?array $financialCategories = null, ?ScheduledTransaction $scheduledTransaction = null): array
     {
         $qb = $this->createQueryBuilder('t')
             ->where('t.bankAccount = :bankAccount')
@@ -31,10 +31,19 @@ class TransactionRepository extends ServiceEntityRepository
             ->andWhere('t.date <= :endDate')
             ->setParameter('bankAccount', $bankAccount)
             ->setParameter('startDate', $startDate->format("Y-m-d"))
-            ->setParameter('endDate', $endDate->format("Y-m-d"))
-            ->orderBy('t.date', 'ASC');
+            ->setParameter('endDate', $endDate->format("Y-m-d"));
+        if ($financialCategories) {
+            $financialCategoriesIds = array_map(function ($financialCategory) {
+                return $financialCategory->getId();
+            }, $financialCategories);
 
-        return $qb->getQuery()->getResult();
+            $qb->andWhere($qb->expr()->in('t.financialCategory', $financialCategoriesIds));
+        }
+        if ($scheduledTransaction) {
+            $qb->andWhere('t.scheduledTransaction = :scheduledTransaction')
+                ->setParameter('scheduledTransaction', $scheduledTransaction);
+        }
+        return $qb->orderBy('t.date', 'ASC')->getQuery()->getResult();
     }
 
     public function unsetScheduledTransactionForAll(ScheduledTransaction $scheduledTransaction)
