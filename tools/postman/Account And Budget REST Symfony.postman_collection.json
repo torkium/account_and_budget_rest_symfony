@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "9a355ca8-9105-4491-8b44-ccf7764c2a7c",
+		"_postman_id": "c14863e5-555e-4476-92d7-0058a3a79a8a",
 		"name": "Account And Budget REST Symfony",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "28256650"
@@ -132,14 +132,9 @@
 				},
 				"url": {
 					"raw": "{{url}}/api/user-settings/",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"user-settings",
@@ -175,14 +170,9 @@
 				},
 				"url": {
 					"raw": "{{url}}/api/financial-categories/",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"financial-categories",
@@ -221,14 +211,9 @@
 				},
 				"url": {
 					"raw": "{{url}}/api/financial-categories",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"financial-categories"
@@ -266,14 +251,9 @@
 				},
 				"url": {
 					"raw": "{{url}}/api/financial-categories/6",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"financial-categories",
@@ -300,7 +280,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"label\": \"Investissement\",\r\n    \"parent_id\": 6\r\n}",
+					"raw": "{\r\n    \"label\": \"Courses\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -308,19 +288,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{url}}/api/financial-categories/7",
-					"protocol": "http",
+					"raw": "{{url}}/api/financial-categories/10",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"financial-categories",
-						"7"
+						"10"
 					]
 				}
 			},
@@ -352,14 +327,9 @@
 				},
 				"url": {
 					"raw": "{{url}}/api/financial-categories/8",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"financial-categories",
@@ -395,14 +365,9 @@
 				},
 				"url": {
 					"raw": "{{url}}/api/banks/",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"banks",
@@ -441,14 +406,9 @@
 				},
 				"url": {
 					"raw": "{{url}}/api/banks",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"banks"
@@ -486,14 +446,9 @@
 				},
 				"url": {
 					"raw": "{{url}}/api/banks/2",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"banks",
@@ -529,14 +484,9 @@
 				},
 				"url": {
 					"raw": "{{url}}/api/banks/2",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"banks",
@@ -572,14 +522,9 @@
 				},
 				"url": {
 					"raw": "{{url}}/api/banks/2",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"banks",
@@ -606,7 +551,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"label\": \"Compte perso LBP\",\r\n    \"account_number\": \"5xz026589perso\"\r\n}",
+					"raw": "{\r\n    \"label\": \"Compte courant test\",\r\n    \"account_number\": \"ccsgtoto\",\r\n    \"bank_id\": 2\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -614,21 +559,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{url}}/api/banks/2/bank-accounts/",
-					"protocol": "http",
+					"raw": "{{url}}/api/bank-accounts/5",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
-						"banks",
-						"2",
 						"bank-accounts",
-						""
+						"5"
 					]
 				}
 			},
@@ -662,20 +600,19 @@
 					}
 				},
 				"url": {
-					"raw": "{{url}}/api/banks/2/bank-accounts",
-					"protocol": "http",
+					"raw": "{{url}}/api/bank-accounts?bank_id=2",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
-						"banks",
-						"2",
 						"bank-accounts"
+					],
+					"query": [
+						{
+							"key": "bank_id",
+							"value": "2"
+						}
 					]
 				}
 			},
@@ -709,21 +646,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{url}}/api/banks/2/bank-accounts/6",
-					"protocol": "http",
+					"raw": "{{url}}/api/bank-accounts/9",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
-						"banks",
-						"2",
 						"bank-accounts",
-						"6"
+						"9"
 					]
 				}
 			},
@@ -746,7 +676,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"label\": \"Compte principal LBP edited\",\r\n    \"account_number\": \"5xz026589_edited\"\r\n}",
+					"raw": "{\r\n    \"label\": \"Compte courant LBP edited\",\r\n    \"account_number\": \"cclbptoto_edited\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -754,21 +684,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{url}}/api/banks/2/bank-accounts/6",
-					"protocol": "http",
+					"raw": "{{url}}/api/bank-accounts/9",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
-						"banks",
-						"2",
 						"bank-accounts",
-						"6"
+						"9"
 					]
 				}
 			},
@@ -799,19 +722,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{url}}/api/banks/2/bank-accounts/7",
-					"protocol": "http",
+					"raw": "{{url}}/api/bank-accounts/7",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
-						"banks",
-						"2",
 						"bank-accounts",
 						"7"
 					]
@@ -845,14 +761,9 @@
 				},
 				"url": {
 					"raw": "{{url}}/api/profiles/",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"profiles",
@@ -891,14 +802,9 @@
 				},
 				"url": {
 					"raw": "{{url}}/api/profiles/",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"profiles",
@@ -936,7 +842,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{url}}/api/profiles/2",
+					"raw": "http://127.0.0.1:8000/api/profiles/2",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -979,19 +885,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{url}}/api/profiles/1/edit",
-					"protocol": "http",
+					"raw": "{{url}}/api/profiles/3/edit",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"profiles",
-						"1",
+						"3",
 						"edit"
 					]
 				}
@@ -1023,19 +924,54 @@
 					}
 				},
 				"url": {
-					"raw": "{{url}}/api/profiles/1",
-					"protocol": "http",
+					"raw": "{{url}}/api/profiles/3",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"profiles",
-						"1"
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transaction Create",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"reference\": \"renault\",\n    \"label\": \"révision\",\n    \"amount\": 25.00,\n    \"date\": \"2023-02-12\",\n    \"financialCategory\": 14\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/bank-accounts/9/transactions/",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"bank-accounts",
+						"9",
+						"transactions",
+						""
 					]
 				}
 			},
@@ -1069,19 +1005,14 @@
 					}
 				},
 				"url": {
-					"raw": "{{url}}/api/bank-accounts/8/transactions?start_date=2023-01-01&end_date=2023-03-31",
-					"protocol": "http",
+					"raw": "{{url}}/api/bank-accounts/9/transactions?start_date=2023-01-01&end_date=2023-03-31",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"bank-accounts",
-						"8",
+						"9",
 						"transactions"
 					],
 					"query": [
@@ -1093,51 +1024,6 @@
 							"key": "end_date",
 							"value": "2023-03-31"
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Transaction Create",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{jwt_token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"reference\": \"REF xxx0513\",\n    \"label\": \"Courses auchan\",\n    \"amount\": 150.00,\n    \"date\": \"2023-03-15\",\n    \"financialCategory\": 3\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/api/bank-accounts/8/transactions/",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"bank-accounts",
-						"8",
-						"transactions",
-						""
 					]
 				}
 			},
@@ -1160,14 +1046,9 @@
 				"header": [],
 				"url": {
 					"raw": "{{url}}/api/bank-accounts/8/transactions/4",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"bank-accounts",
@@ -1205,14 +1086,9 @@
 				},
 				"url": {
 					"raw": "{{url}}/api/bank-accounts/5/transactions/7",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"bank-accounts",
@@ -1241,20 +1117,59 @@
 				"header": [],
 				"url": {
 					"raw": "{{url}}/api/bank-accounts/5/transactions/3",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"bank-accounts",
 						"5",
 						"transactions",
 						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scheduled Transaction Create",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						},
+						{
+							"key": "undefined",
+							"type": "any"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"label\": \"Assurance Axa\",\r\n    \"amount\": 75,\r\n    \"startDate\": \"2023-01-05\",\r\n    \"endDate\": \"2025-12-31\",\r\n    \"frequency\": \"monthly\",\r\n    \"financialCategory\": 15\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/bank-accounts/9/scheduled-transactions/",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"bank-accounts",
+						"9",
+						"scheduled-transactions",
+						""
 					]
 				}
 			},
@@ -1281,14 +1196,9 @@
 				"header": [],
 				"url": {
 					"raw": "{{url}}/api/bank-accounts/5/scheduled-transactions",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"bank-accounts",
@@ -1320,69 +1230,15 @@
 				"header": [],
 				"url": {
 					"raw": "{{url}}/api/bank-accounts/5/scheduled-transactions/1",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"bank-accounts",
 						"5",
 						"scheduled-transactions",
 						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Scheduled Transaction Create",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{jwt_token}}",
-							"type": "string"
-						},
-						{
-							"key": "undefined",
-							"type": "any"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"label\": \"New Scheduled Transaction\",\r\n    \"amount\": 100,\r\n    \"startDate\": \"2023-01-01\",\r\n    \"endDate\": \"2023-12-31\",\r\n    \"frequency\": \"monthly\",\r\n    \"financialCategory\": 3\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/api/bank-accounts/5/scheduled-transactions/",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"bank-accounts",
-						"5",
-						"scheduled-transactions",
-						""
 					]
 				}
 			},
@@ -1418,14 +1274,9 @@
 				},
 				"url": {
 					"raw": "{{url}}/api/bank-accounts/5/scheduled-transactions/2",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"bank-accounts",
@@ -1458,151 +1309,15 @@
 				"header": [],
 				"url": {
 					"raw": "{{url}}/api/bank-accounts/5/scheduled-transactions/3",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"bank-accounts",
 						"5",
 						"scheduled-transactions",
 						"3"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Budget Get",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{jwt_token}}",
-							"type": "string"
-						},
-						{
-							"key": "undefined",
-							"type": "any"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{url}}/api/bank-accounts/5/budget",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"bank-accounts",
-						"5",
-						"budget"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Budget Overview",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{jwt_token}}",
-							"type": "string"
-						},
-						{
-							"key": "undefined",
-							"type": "any"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"start_date\": \"2022-01-01\",\r\n    \"end_date\": \"2022-01-01\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{url}}/api/bank-accounts/5/budget/overview",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"bank-accounts",
-						"5",
-						"budget",
-						"overview"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Budget Show",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{jwt_token}}",
-							"type": "string"
-						},
-						{
-							"key": "undefined",
-							"type": "any"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{url}}/api/bank-accounts/5/budget/1",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"bank-accounts",
-						"5",
-						"budget",
-						"1"
 					]
 				}
 			},
@@ -1638,20 +1353,129 @@
 				},
 				"url": {
 					"raw": "{{url}}/api/bank-accounts/5/budget/",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"bank-accounts",
 						"5",
 						"budget",
 						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Budget Get",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						},
+						{
+							"key": "undefined",
+							"type": "any"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/api/bank-accounts/9/budget",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"bank-accounts",
+						"9",
+						"budget"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Budget Overview",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						},
+						{
+							"key": "undefined",
+							"type": "any"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/api/bank-accounts/9/budget/overview?start_date=2023-03-01&end_date=2023-03-31",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"bank-accounts",
+						"9",
+						"budget",
+						"overview"
+					],
+					"query": [
+						{
+							"key": "start_date",
+							"value": "2023-03-01"
+						},
+						{
+							"key": "end_date",
+							"value": "2023-03-31"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Budget Show",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						},
+						{
+							"key": "undefined",
+							"type": "any"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/api/bank-accounts/5/budget/1",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"bank-accounts",
+						"5",
+						"budget",
+						"1"
 					]
 				}
 			},
@@ -1687,14 +1511,9 @@
 				},
 				"url": {
 					"raw": "{{url}}/api/bank-accounts/5/budget/2",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"bank-accounts",
@@ -1727,14 +1546,9 @@
 				"header": [],
 				"url": {
 					"raw": "{{url}}/api/bank-accounts/5/budget/3",
-					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{url}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"bank-accounts",

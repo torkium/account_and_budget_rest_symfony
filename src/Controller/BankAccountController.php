@@ -11,16 +11,22 @@ use App\Entity\BankAccount;
 use App\Entity\User;
 use App\Entity\UserBankAccount;
 use App\Enum\PermissionEnum;
+use App\Repository\BankRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
-#[Route('/banks/{bank}/bank-accounts', name: 'app_api_bank_account')]
+#[Route('/bank-accounts', name: 'app_api_bank_account')]
 class BankAccountController extends AbstractController
 {
 
     #[Route('/', name: 'app_api_bank_account_index', methods: 'GET')]
-    public function index(Bank $bank)
+    public function index(Request $request, BankRepository $bankRepository)
     {
-        $this->denyAccessUnlessGranted('VIEW', $bank);
+        $bankId = $request->query->get('bank_id');
+        $bank = $bankId ? $bankRepository->findOneBy(['id' => $bankId]) : null;
+        if($bank){
+            $this->denyAccessUnlessGranted('VIEW', $bank);
+        }
         /** @var User $user */
         $user = $this->getUser();
         $bankAccounts = $user->getBankAccounts($bank);
@@ -28,18 +34,24 @@ class BankAccountController extends AbstractController
     }
 
     #[Route('/{bank_account}', name: 'app_api_bank_account_show', methods: 'GET')]
-    public function show(Bank $bank, BankAccount $bank_account)
+    public function show(BankAccount $bank_account)
     {
-        $this->denyAccessUnlessGranted('VIEW', $bank);
         $this->denyAccessUnlessGranted('VIEW', $bank_account);
         return $this->json($bank_account, 200, [], ['groups' => ['bank_account_get', 'bank_get', 'user_get_join']]);
     }
 
     #[Route('/', name: 'app_api_bank_account_create', methods: 'POST')]
-    public function create(Request $request, Bank $bank, EntityManagerInterface $entityManager)
+    public function create(Request $request, EntityManagerInterface $entityManager, BankRepository $bankRepository)
     {
         $data = json_decode($request->getContent(), true);
 
+        $bank = $data['bank_id'] ? $bankRepository->findOneBy(['id' => $data['bank_id']]) : null;
+        if(!$bank){
+            return $this->json(['error' => 'bank_id required.'], Response::HTTP_BAD_REQUEST);
+        }
+        
+        $this->denyAccessUnlessGranted('VIEW', $bank);
+        
         $bankAccount = new BankAccount();
         $bankAccount->setLabel($data['label']);
         $bankAccount->setAccountNumber($data['account_number']);
@@ -60,7 +72,7 @@ class BankAccountController extends AbstractController
     }
 
     #[Route('/{bank_account}', name: 'app_api_bank_account_edit', methods: 'PUT')]
-    public function edit(Request $request, Bank $bank, BankAccount $bank_account, EntityManagerInterface $entityManager)
+    public function edit(Request $request, BankAccount $bank_account, EntityManagerInterface $entityManager)
     {
         $this->denyAccessUnlessGranted('EDIT', $bank_account);
         $data = json_decode($request->getContent(), true);
