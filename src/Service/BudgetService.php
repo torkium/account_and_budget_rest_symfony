@@ -50,12 +50,12 @@ class BudgetService
             $allTransactions = array_merge($realTransactions, $predictedTransactions);
             foreach ($allTransactions as $transaction) {
                 if ($transaction->getId()) {
-                    $summary->consumed = bcadd((string)$transaction->getAmount(), (string) $summary->consumed);
+                    $summary->consumed = bcadd((string)$transaction->getAmount(), (string) $summary->consumed, 2);
                 }
-                $summary->provisionalConsumed = bcadd((string) $transaction->getAmount(), (string) $summary->provisionalConsumed);
+                $summary->provisionalConsumed = bcadd((string) $transaction->getAmount(), (string) $summary->provisionalConsumed, 2);
             }
-            $summary->summary = bcsub((string) $budget->getAmount(), (string) $summary->consumed);
-            $summary->provisionalSummary = bcsub((string) $budget->getAmount(), (string) $summary->provisionalConsumed);
+            $summary->summary = bcsub((string) $budget->getAmount(), (string) $summary->consumed, 2);
+            $summary->provisionalSummary = bcsub((string) $budget->getAmount(), (string) $summary->provisionalConsumed, 2);
 
             $budgetSummaries[] = $summary;
         }
