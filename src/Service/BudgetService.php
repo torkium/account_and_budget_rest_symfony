@@ -50,12 +50,12 @@ class BudgetService
             $allTransactions = array_merge($realTransactions, $predictedTransactions);
             foreach ($allTransactions as $transaction) {
                 if ($transaction->getId()) {
-                    $summary->consumed += $transaction->getAmount();
+                    $summary->consumed = bcadd((string)$transaction->getAmount(), (string) $summary->consumed);
                 }
-                $summary->provisionalConsumed += $transaction->getAmount();
+                $summary->provisionalConsumed = bcadd((string) $transaction->getAmount(), (string) $summary->provisionalConsumed);
             }
-            $summary->summary = $budget->getAmount() - $summary->consumed;
-            $summary->provisionalSummary = $budget->getAmount() - $summary->provisionalConsumed;
+            $summary->summary = bcsub((string) $budget->getAmount(), (string) $summary->consumed);
+            $summary->provisionalSummary = bcsub((string) $budget->getAmount(), (string) $summary->provisionalConsumed);
 
             $budgetSummaries[] = $summary;
         }
@@ -100,7 +100,6 @@ class BudgetService
                 $startDay = (int) $startDate->format('d');
                 $endDay = (int) $endDate->format('d');
                 $endMonthDays = (int) $endDate->format('t');
-
                 $months = $endDate->diff($startDate)->m + ($endDate->diff($startDate)->y * 12);
                 if ($startDay === 1 && $endDay === $endMonthDays) {
                     $months += 1;
