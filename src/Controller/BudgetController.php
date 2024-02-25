@@ -19,7 +19,7 @@ use App\Service\BudgetService;
 use App\Service\FinancialCategoryService;
 use App\Service\ScheduledTransactionService;
 
-#[Route('/bank-accounts/{bankAccount}/budget', name: 'app_api_budget')]
+#[Route('/bank-accounts/{bankAccount}/budgets', name: 'app_api_budget')]
 class BudgetController extends AbstractController
 {
     #[Route('/', name: 'app_api_budget_index', methods: 'GET')]
