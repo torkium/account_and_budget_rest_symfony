@@ -72,11 +72,16 @@ class BankAccountController extends AbstractController
     }
 
     #[Route('/{bank_account}', name: 'app_api_bank_account_edit', methods: 'PUT')]
-    public function edit(Request $request, BankAccount $bank_account, EntityManagerInterface $entityManager)
+    public function edit(Request $request, BankAccount $bank_account, EntityManagerInterface $entityManager, BankRepository $bankRepository)
     {
         $this->denyAccessUnlessGranted('EDIT', $bank_account);
         $data = json_decode($request->getContent(), true);
 
+        if(array_key_exists("bank_id", $data)){
+            $newBank = $bankRepository->findOneBy(['id' => $data['bank_id']]);
+            $this->denyAccessUnlessGranted('VIEW', $newBank);
+            $bank_account->setBank($newBank);
+        }
         $bank_account->setLabel($data['label']);
         $bank_account->setAccountNumber($data['account_number']);
 
