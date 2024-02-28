@@ -86,6 +86,7 @@ class ScheduledTransactionService
         $transaction->setDate(clone $date); // Clone to avoid reference modification
         $transaction->setBankAccount($scheduledTransaction->getBankAccount());
         $transaction->setFinancialCategory($scheduledTransaction->getFinancialCategory());
+        $transaction->setScheduledTransaction($scheduledTransaction);
         // Note: No ID as these transactions are not persisted yet
         return $transaction;
     }

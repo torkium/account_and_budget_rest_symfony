@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\BankAccount;
 use App\Entity\ScheduledTransaction;
+use App\Entity\Transaction;
 use App\Repository\ScheduledTransactionRepository;
 use App\Repository\FinancialCategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -103,6 +104,33 @@ class ScheduledTransactionController extends AbstractController
         $entityManager->flush();
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route('/{scheduledTransaction}/cancel', name: 'app_api_scheduled_transaction_edit', methods: 'DELETE')]
+    public function cancel(Request $request, BankAccount $bankAccount, ScheduledTransaction $scheduledTransaction, EntityManagerInterface $entityManager, FinancialCategoryRepository $financialCategoryRepository)
+    {
+        if ($this->isScheduledTransactionOnBankAccount($bankAccount, $scheduledTransaction)) {
+            return $this->json(['error' => 'Scheduled Transaction is not linked to this bank account.'], Response::HTTP_BAD_REQUEST);
+        }
+        $this->denyAccessUnlessGranted('VIEW', $bankAccount);
+        $this->denyAccessUnlessGranted('EDIT', $scheduledTransaction);
+
+        $data = json_decode($request->getContent(), true);
+        $transaction = new Transaction();
+        $transaction->setReference("");
+        $transaction->setLabel($scheduledTransaction->getLabel());
+        $transaction->setAmount(0);
+        $transaction->setDate(new \DateTime($data['date']));
+        $transaction->setBankAccount($bankAccount);
+        $transaction->setScheduledTransaction($scheduledTransaction);
+
+        $this->denyAccessUnlessGranted('VIEW', $scheduledTransaction->getFinancialCategory());
+        $transaction->setFinancialCategory($scheduledTransaction->getFinancialCategory());
+
+        $entityManager->persist($transaction);
+        $entityManager->flush();
+
+        return $this->json(null, Response::HTTP_NO_CONTENT);
     }
 
     protected function isScheduledTransactionOnBankAccount(BankAccount $bankAccount, ScheduledTransaction $scheduledTransaction)
