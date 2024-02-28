@@ -48,7 +48,7 @@ class ScheduledTransactionController extends AbstractController
         $scheduledTransaction->setLabel($data['label']);
         $scheduledTransaction->setAmount($data['amount']);
         $scheduledTransaction->setStartDate(new \DateTime($data['startDate']));
-        $scheduledTransaction->setEndDate(isset($data['endDate']) ? new \DateTime($data['endDate']) : null);
+        $scheduledTransaction->setEndDate(isset($data['endDate']) && !empty($data['endDate']) ? new \DateTime($data['endDate']) : null);
         $scheduledTransaction->setFrequency(FrequencyEnum::from($data['frequency']));
         $scheduledTransaction->setBankAccount($bankAccount);
 
@@ -77,7 +77,7 @@ class ScheduledTransactionController extends AbstractController
         $scheduledTransaction->setLabel($data['label']);
         $scheduledTransaction->setAmount($data['amount']);
         $scheduledTransaction->setStartDate(new \DateTime($data['startDate']));
-        $scheduledTransaction->setEndDate(isset($data['endDate']) ? new \DateTime($data['endDate']) : null);
+        $scheduledTransaction->setEndDate(isset($data['endDate']) && !empty($data['endDate']) ? new \DateTime($data['endDate']) : null);
         $scheduledTransaction->setFrequency(FrequencyEnum::from($data['frequency']));
 
         if (isset($data['financialCategory'])) {

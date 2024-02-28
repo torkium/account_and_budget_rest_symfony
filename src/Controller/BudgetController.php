@@ -53,7 +53,7 @@ class BudgetController extends AbstractController
         $budget->setLabel($data['label']);
         $budget->setAmount($data['amount']);
         $budget->setStartDate(new \DateTime($data['startDate']));
-        $budget->setEndDate(isset($data['endDate']) ? new \DateTime($data['endDate']) : null);
+        $budget->setEndDate(isset($data['endDate']) && !empty($data['endDate']) ? new \DateTime($data['endDate']) : null);
         $budget->setFrequency(FrequencyEnum::from($data['frequency']));
         $budget->setBankAccount($bankAccount);
 
@@ -82,7 +82,7 @@ class BudgetController extends AbstractController
         $budget->setLabel($data['label']);
         $budget->setAmount($data['amount']);
         $budget->setStartDate(new \DateTime($data['startDate']));
-        $budget->setEndDate(isset($data['endDate']) ? new \DateTime($data['endDate']) : null);
+        $budget->setEndDate(isset($data['endDate']) && !empty($data['endDate']) ? new \DateTime($data['endDate']) : null);
         $budget->setFrequency(FrequencyEnum::from($data['frequency']));
 
         if (isset($data['financialCategory'])) {
