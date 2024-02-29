@@ -6,7 +6,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Entity\Bank;
 use App\Entity\BankAccount;
 use App\Entity\User;
 use App\Entity\UserBankAccount;
@@ -55,6 +54,7 @@ class BankAccountController extends AbstractController
         $bankAccount = new BankAccount();
         $bankAccount->setLabel($data['label']);
         $bankAccount->setAccountNumber($data['account_number']);
+        $bankAccount->setInitialAmount($data['initial_amount']);
         $bankAccount->setBank($bank);
 
         $userBankAccount = new UserBankAccount();
@@ -84,6 +84,7 @@ class BankAccountController extends AbstractController
         }
         $bank_account->setLabel($data['label']);
         $bank_account->setAccountNumber($data['account_number']);
+        $bank_account->setInitialAmount($data['initial_amount']);
 
         $entityManager->flush();
 

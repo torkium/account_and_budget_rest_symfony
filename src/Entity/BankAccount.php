@@ -26,6 +26,10 @@ class BankAccount
     #[Groups(["bank_account_get"])]
     private ?string $account_number = null;
 
+    #[ORM\Column(type: 'decimal', scale: 2)]
+    #[Groups(["bank_account_get"])]
+    private float $initial_amount;
+
     #[ORM\ManyToOne(inversedBy: 'bank_accounts')]
     #[ORM\JoinColumn(nullable: false, name: 'bank_id', referencedColumnName: 'id')]
     #[Groups(["bank_account_get"])]
@@ -71,6 +75,18 @@ class BankAccount
     public function setAccountNumber(string $account_number): static
     {
         $this->account_number = $account_number;
+
+        return $this;
+    }
+
+    public function getInitialAmount(): float
+    {
+        return $this->initial_amount;
+    }
+
+    public function setInitialAmount(float $initial_amount): self
+    {
+        $this->initial_amount = $initial_amount;
 
         return $this;
     }
