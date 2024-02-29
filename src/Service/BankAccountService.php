@@ -9,6 +9,7 @@ use App\Entity\Budget;
 use App\Entity\Transaction;
 use App\Enum\FrequencyEnum;
 use App\Repository\BankAccountRepository;
+use App\Repository\BudgetRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\ScheduledTransactionRepository;
 use DateTime;
@@ -18,19 +19,25 @@ class BankAccountService
 {
     private BankAccountRepository $bankAccountRepository;
     private TransactionRepository $transactionRepository;
+    private BudgetRepository $budgetRepository;
     private ScheduledTransactionRepository $scheduledTransactionRepository;
     private ScheduledTransactionService $scheduledTransactionService;
+    private BudgetService $budgetService;
 
     public function __construct(
         BankAccountRepository $bankAccountRepository,
         TransactionRepository $transactionRepository,
+        BudgetRepository $budgetRepository,
         ScheduledTransactionRepository $scheduledTransactionRepository,
-        ScheduledTransactionService $scheduledTransactionService
+        ScheduledTransactionService $scheduledTransactionService,
+        BudgetService $budgetService,
     ) {
         $this->bankAccountRepository = $bankAccountRepository;
         $this->transactionRepository = $transactionRepository;
+        $this->budgetRepository = $budgetRepository;
         $this->scheduledTransactionRepository = $scheduledTransactionRepository;
         $this->scheduledTransactionService = $scheduledTransactionService;
+        $this->budgetService = $budgetService;
     }
 
     public function calculateBankAccountSummary(BankAccount $bankAccount, DateTimeInterface $startDate, DateTimeInterface $endDate): BankAccountSummary
@@ -42,6 +49,7 @@ class BankAccountService
         
         $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange($bankAccount, $startDate, $endDate);
         $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $startDate, $endDate);
+        $budgets = $this->budgetRepository->findBudgetsByDateRange($bankAccount, $startDate, $endDate);
 
         $summary->setProvisionalCredit($summary->getCredit());
         $summary->setProvisionalDebit($summary->getDebit());
@@ -53,6 +61,26 @@ class BankAccountService
             }
             else{
                 $summary->setProvisionalDebit($summary->getProvisionalDebit() + $transaction->getAmount());
+            }
+        }
+
+        /** @var BudgetSummary[] $budgetSummaries */
+        $budgetSummaries = $this->budgetService->calculateBudgetSummary($bankAccount, $startDate, $endDate);
+        /** @var Budget $budget */
+        foreach($budgets as $budget){
+            $budgetAmount = $this->calculateAdjustedAmountForPeriod($budget, $startDate, $endDate);
+            $budgetSummary = array_filter($budgetSummaries, function($e) use ($budget){
+                /** @var BudgetSummary $e */
+                return $e->budget === $budget; // Condition pour filtrer
+            })[0] ?? null;
+            if($budgetSummary){
+                $budgetAmount -= $budgetSummary->consumed;
+            }
+            if($budgetAmount < 0){
+                $summary->setProvisionalCredit(bcadd($summary->getProvisionalCredit(), $budgetAmount, 2));
+            }
+            else{
+                $summary->setProvisionalDebit(bcsub($summary->getProvisionalDebit(), $budgetAmount, 2));
             }
         }
 

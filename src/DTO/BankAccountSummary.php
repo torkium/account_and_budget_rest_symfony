@@ -178,9 +178,9 @@ class BankAccountSummary
     }
 
     private function calculate(){
-        $this->summary = $this->credit + $this->debit;
-        $this->provisionalSummary = $this->provisionalCredit + $this->provisionalDebit;
-        $this->endBalance = $this->startBalance + $this->summary;
-        $this->provisionalEndBalance = $this->startBalance + $this->provisionalSummary;
+        $this->summary = bcadd((string) $this->credit, (string)$this->debit, 2);
+        $this->provisionalSummary =  bcadd((string)$this->provisionalCredit, (string)$this->provisionalDebit, 2);
+        $this->endBalance =  bcadd((string)$this->startBalance, (string)$this->summary, 2);
+        $this->provisionalEndBalance =  bcadd((string)$this->startBalance, (string)$this->provisionalSummary, 2);
     }
 }
