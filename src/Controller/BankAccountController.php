@@ -11,6 +11,7 @@ use App\Entity\User;
 use App\Entity\UserBankAccount;
 use App\Enum\PermissionEnum;
 use App\Repository\BankRepository;
+use App\Service\BankAccountService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -99,5 +100,24 @@ class BankAccountController extends AbstractController
         $entityManager->flush();
 
         return new JsonResponse(null, 204);
+    }
+
+    #[Route('/{bank_account}/overview', name: 'app_api_bank_account_overview', methods: 'GET')]
+    public function overview(Request $request, BankAccount $bank_account, BankAccountService $bankAccountService): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('VIEW', $bank_account);
+    
+        $startDateInput = $request->query->get('start_date');
+        $endDateInput = $request->query->get('end_date');
+        $startDate = $startDateInput ? new \DateTime($startDateInput) : null;
+        $endDate = $endDateInput ? new \DateTime($endDateInput) : null;
+    
+        if (!$startDate || !$endDate) {
+            return $this->json(['error' => 'start_date and end_date required.'], Response::HTTP_BAD_REQUEST);
+        }
+    
+        $bankAccountSummaries = $bankAccountService->calculateBankAccountSummary($bank_account, $startDate, $endDate);
+    
+        return $this->json($bankAccountSummaries, Response::HTTP_OK, [], ['groups' => ['bank_account_summary_get']]);
     }
 }

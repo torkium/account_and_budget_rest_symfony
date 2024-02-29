@@ -106,7 +106,7 @@ class ScheduledTransactionController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route('/{scheduledTransaction}/cancel', name: 'app_api_scheduled_transaction_edit', methods: 'DELETE')]
+    #[Route('/{scheduledTransaction}/cancel', name: 'app_api_scheduled_transaction_cancel', methods: 'DELETE')]
     public function cancel(Request $request, BankAccount $bankAccount, ScheduledTransaction $scheduledTransaction, EntityManagerInterface $entityManager, FinancialCategoryRepository $financialCategoryRepository)
     {
         if ($this->isScheduledTransactionOnBankAccount($bankAccount, $scheduledTransaction)) {

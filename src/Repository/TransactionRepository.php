@@ -46,6 +46,49 @@ class TransactionRepository extends ServiceEntityRepository
         return $qb->orderBy('t.date', 'ASC')->getQuery()->getResult();
     }
 
+
+    public function getCreditBetweenDate(BankAccount $bankAccount, \DateTime $startDate, \DateTime $endDate, array $financialCategories = null)
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->select('SUM(t.amount)')
+            ->where('t.bankAccount = :bankAccount')
+            ->andWhere('t.date >= :startDate')
+            ->andWhere('t.date <= :endDate')
+            ->andWhere('t.amount >= 0')
+            ->setParameter('bankAccount', $bankAccount)
+            ->setParameter('startDate', $startDate->format("Y-m-d"))
+            ->setParameter('endDate', $endDate->format("Y-m-d"));
+        if ($financialCategories) {
+            $financialCategoriesIds = array_map(function ($financialCategory) {
+                return $financialCategory->getId();
+            }, $financialCategories);
+
+            $qb->andWhere($qb->expr()->in('t.financialCategory', $financialCategoriesIds));
+        }
+        return $qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function getDebitBetweenDate(BankAccount $bankAccount, \DateTime $startDate, \DateTime $endDate, array $financialCategories = null)
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->select('SUM(t.amount)')
+            ->where('t.bankAccount = :bankAccount')
+            ->andWhere('t.date >= :startDate')
+            ->andWhere('t.date <= :endDate')
+            ->andWhere('t.amount < 0')
+            ->setParameter('bankAccount', $bankAccount)
+            ->setParameter('startDate', $startDate->format("Y-m-d"))
+            ->setParameter('endDate', $endDate->format("Y-m-d"));
+        if ($financialCategories) {
+            $financialCategoriesIds = array_map(function ($financialCategory) {
+                return $financialCategory->getId();
+            }, $financialCategories);
+
+            $qb->andWhere($qb->expr()->in('t.financialCategory', $financialCategoriesIds));
+        }
+        return $qb->getQuery()->getSingleScalarResult();
+    }
+
     public function unsetScheduledTransactionForAll(ScheduledTransaction $scheduledTransaction)
     {
         $qb = $this->createQueryBuilder('t')

@@ -20,4 +20,11 @@ class BankAccountRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, BankAccount::class);
     }
+
+    
+
+    public function getBalanceAtDate(BankAccount $bankAccount, \DateTime $date)
+    {
+        return $bankAccount->getInitialAmount();
+    }
 }

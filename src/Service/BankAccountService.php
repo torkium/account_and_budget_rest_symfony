@@ -2,66 +2,61 @@
 
 namespace App\Service;
 
+use App\DTO\BankAccountSummary;
 use App\DTO\BudgetSummary;
 use App\Entity\BankAccount;
 use App\Entity\Budget;
+use App\Entity\Transaction;
 use App\Enum\FrequencyEnum;
-use App\Repository\BudgetRepository;
+use App\Repository\BankAccountRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\ScheduledTransactionRepository;
 use DateTime;
 use DateTimeInterface;
 
-class BudgetService
+class BankAccountService
 {
-    private BudgetRepository $budgetRepository;
+    private BankAccountRepository $bankAccountRepository;
     private TransactionRepository $transactionRepository;
     private ScheduledTransactionRepository $scheduledTransactionRepository;
     private ScheduledTransactionService $scheduledTransactionService;
-    private FinancialCategoryService $financialCategoryService;
 
     public function __construct(
-        BudgetRepository $budgetRepository,
+        BankAccountRepository $bankAccountRepository,
         TransactionRepository $transactionRepository,
         ScheduledTransactionRepository $scheduledTransactionRepository,
-        ScheduledTransactionService $scheduledTransactionService,
-        FinancialCategoryService $financialCategoryService
+        ScheduledTransactionService $scheduledTransactionService
     ) {
-        $this->budgetRepository = $budgetRepository;
+        $this->bankAccountRepository = $bankAccountRepository;
         $this->transactionRepository = $transactionRepository;
         $this->scheduledTransactionRepository = $scheduledTransactionRepository;
         $this->scheduledTransactionService = $scheduledTransactionService;
-        $this->financialCategoryService = $financialCategoryService;
     }
 
-    public function calculateBudgetSummary(BankAccount $bankAccount, DateTimeInterface $startDate, DateTimeInterface $endDate): array
+    public function calculateBankAccountSummary(BankAccount $bankAccount, DateTimeInterface $startDate, DateTimeInterface $endDate): BankAccountSummary
     {
-        $budgets = $this->budgetRepository->findBudgetsByDateRange($bankAccount, $startDate, $endDate);
-        /** @var BudgetSummary[] $budgetSummaries */
-        $budgetSummaries = [];
+        $summary = new BankAccountSummary();
+        $summary->setStartBalance($this->bankAccountRepository->getBalanceAtDate($bankAccount, $startDate) ?? 0);
+        $summary->setCredit($this->transactionRepository->getCreditBetweenDate($bankAccount, $startDate, $endDate) ?? 0);
+        $summary->setDebit($this->transactionRepository->getDebitBetweenDate($bankAccount, $startDate, $endDate) ?? 0);
+        
+        $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange($bankAccount, $startDate, $endDate);
+        $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $startDate, $endDate);
 
-        foreach ($budgets as $budget) {
-            $budget->setAmount($this->calculateAdjustedAmountForPeriod($budget, $startDate, $endDate));
-            $summary = new BudgetSummary($budget);
-            $financialCategories = $this->financialCategoryService->getAllAccessibleFinancialCategoriesFlat($budget->getFinancialCategory());
+        $summary->setProvisionalCredit($summary->getCredit());
+        $summary->setProvisionalDebit($summary->getDebit());
 
-            $realTransactions = $this->transactionRepository->findTransactionsByDateRange($bankAccount, $startDate, $endDate, $financialCategories);
-            $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange($bankAccount, $startDate, $endDate, $financialCategories);
-            $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $startDate, $endDate);
-            $allTransactions = array_merge($realTransactions, $predictedTransactions);
-            foreach ($allTransactions as $transaction) {
-                if ($transaction->getId()) {
-                    $summary->consumed = bcadd((string)$transaction->getAmount(), (string) $summary->consumed, 2);
-                }
-                $summary->provisionalConsumed = bcadd((string) $transaction->getAmount(), (string) $summary->provisionalConsumed, 2);
+        /** @var Transaction $transaction */
+        foreach($predictedTransactions as $transaction){
+            if($transaction->getAmount() >= 0){
+                $summary->setProvisionalCredit($summary->getProvisionalCredit() + $transaction->getAmount());
             }
-            $summary->summary = bcsub((string) $budget->getAmount(), (string) $summary->consumed, 2);
-            $summary->provisionalSummary = bcsub((string) $budget->getAmount(), (string) $summary->provisionalConsumed, 2);
-
-            $budgetSummaries[] = $summary;
+            else{
+                $summary->setProvisionalDebit($summary->getProvisionalDebit() + $transaction->getAmount());
+            }
         }
 
-        return $budgetSummaries;
+        return $summary;
     }
 
     /**
