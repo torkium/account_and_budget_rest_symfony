@@ -77,7 +77,7 @@ class TransactionController extends AbstractController
         $data = json_decode($request->getContent(), true);
 
         $transaction = new Transaction();
-        $transaction->setReference($data['reference']);
+        $transaction->setReference($data['reference'] ?? null);
         $transaction->setLabel($data['label']);
         $transaction->setAmount($data['amount']);
         $transaction->setDate(new \DateTime($data['date']));
@@ -119,8 +119,7 @@ class TransactionController extends AbstractController
         $this->denyAccessUnlessGranted('VIEW', $bankAccount);
         $this->denyAccessUnlessGranted('EDIT', $transaction);
         $data = json_decode($request->getContent(), true);
-
-        $transaction->setReference($data['reference']);
+        $transaction->setReference($data['reference'] ?? null);
         $transaction->setLabel($data['label']);
         $transaction->setAmount($data['amount']);
         $transaction->setDate(new \DateTime($data['date']));

@@ -12,6 +12,7 @@
         "doctrine/orm": "^2.17",
         "friendsofsymfony/rest-bundle": "^3.6",
         "jms/serializer-bundle": "^5.4",
+        "league/csv": "^9.15",
         "lexik/jwt-authentication-bundle": "*",
         "nelmio/cors-bundle": "^2.4",
         "phpdocumentor/reflection-docblock": "^5.3",

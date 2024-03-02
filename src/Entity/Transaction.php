@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
+#[ORM\Table(uniqueConstraints: [new ORM\UniqueConstraint(name: "unique_reference", columns: ["reference"])])]
 class Transaction
 {
     #[ORM\Id]
