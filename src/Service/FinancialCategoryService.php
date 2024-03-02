@@ -22,10 +22,10 @@ class FinancialCategoryService
     public function getOrganizeFinancialCategories(FinancialCategory $root = null): array
     {
 
-        return array_filter($this->financialCategoryRepository->findBy(['user' => [$this->security->getUser(), null]]), function ($financialCategory) use ($root) {
+        return array_values(array_filter($this->financialCategoryRepository->findBy(['user' => [$this->security->getUser(), null]]), function ($financialCategory) use ($root) {
             /** @var FinancialCategory $financialCategory */
             return $root ? $financialCategory->getParent() === $root : !$financialCategory->getParent();
-        });
+        }));
     }
 
     /**

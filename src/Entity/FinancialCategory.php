@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\FinancialCategoryTypeEnum;
 use App\Repository\FinancialCategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -25,12 +26,17 @@ class FinancialCategory
     #[ORM\ManyToOne(targetEntity: FinancialCategory::class)]
     #[ORM\JoinColumn(name: "financial_category_id", referencedColumnName: "id", nullable: true)]
     #[Groups(["financial_category_get_parent"])]
+    #[MaxDepth(1)]
     private ?FinancialCategory $parent = null;
 
     #[ORM\OneToMany(targetEntity: FinancialCategory::class, mappedBy: "parent", cascade: ['persist', 'remove'])]
     #[Groups(["financial_category_get_children"])]
     #[MaxDepth(1)]
     private Collection $children;
+
+    #[ORM\Column(type: 'string', enumType: FinancialCategoryTypeEnum::class)]
+    #[Groups(["financial_category_get"])]
+    private FinancialCategoryTypeEnum $type;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
@@ -99,6 +105,11 @@ class FinancialCategory
     {
         return $this->children;
     }
+    
+    #[Groups(["financial_category_get_parent_id"])]
+    public function getParentId(): ?int{
+        return $this->getParent()?->getId();
+    }
 
     public function addChild(FinancialCategory $child): self
     {
@@ -115,6 +126,17 @@ class FinancialCategory
         if ($this->children->removeElement($child) && $child->getParent() === $this) {
             $child->setParent(null);
         }
+
+        return $this;
+    }
+    public function getType(): FinancialCategoryTypeEnum
+    {
+        return $this->type;
+    }
+
+    public function setType(FinancialCategoryTypeEnum $type): self
+    {
+        $this->type = $type;
 
         return $this;
     }

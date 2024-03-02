@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\FinancialCategory;
+use App\Enum\FinancialCategoryTypeEnum;
 use App\Repository\FinancialCategoryRepository;
 use App\Service\FinancialCategoryService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,11 +17,11 @@ class FinancialCategoryController extends AbstractController
 {
 
     #[Route('/', name: 'app_api_financial_category_index', methods: 'GET')]
-    public function index(FinancialCategoryRepository $financialCategoryRepository, FinancialCategoryService $financialCategoryService)
+    public function index(FinancialCategoryService $financialCategoryService)
     {
         $hierarchicalFinancialCategories = $financialCategoryService->getOrganizeFinancialCategories();
 
-        return $this->json($hierarchicalFinancialCategories, 200, [], ['groups' => ['financial_category_get', 'financial_category_get_children']]);
+        return $this->json($hierarchicalFinancialCategories, 200, [], ['groups' => ['financial_category_get', 'financial_category_get_parent_id', 'financial_category_get_children']]);
     }
 
     #[Route('/{id}', name: 'app_api_financial_category_show', methods: 'GET')]
@@ -28,7 +29,7 @@ class FinancialCategoryController extends AbstractController
     {
         $this->denyAccessUnlessGranted('VIEW', $financialCategory);
 
-        return $this->json($financialCategory, 200, [], ['groups' => ['financial_category_get', 'financial_category_get_children']]);
+        return $this->json($financialCategory, 200, [], ['groups' => ['financial_category_get', 'financial_category_get_children', 'financial_category_get_parent_id']]);
     }
 
     #[Route('/', name: 'app_api_financial_category_create', methods: 'POST')]
@@ -43,11 +44,12 @@ class FinancialCategoryController extends AbstractController
         $financialCategory = new FinancialCategory();
         $financialCategory->setLabel($data['label']);
         $financialCategory->setParent($parent);
+        $financialCategory->setType(FinancialCategoryTypeEnum::from($data['type']));
         $financialCategory->setUser($this->geTUser());
         $entityManager->persist($financialCategory);
         $entityManager->flush();
 
-        return $this->json($financialCategory, 201, [], ['groups' => ['financial_category_get', 'financial_category_get_children']]);
+        return $this->json($financialCategory, 201, [], ['groups' => ['financial_category_get', 'financial_category_get_children', 'financial_category_get_parent_id']]);
     }
 
     #[Route('/{id}', name: 'app_api_financial_category_edit', methods: 'PUT')]
@@ -63,11 +65,12 @@ class FinancialCategoryController extends AbstractController
         }
 
         $financialCategory->setLabel($data['label']);
+        $financialCategory->setType(FinancialCategoryTypeEnum::from($data['type']));
         $financialCategory->setParent($parent);
 
         $entityManager->flush();
 
-        return $this->json($financialCategory, 200, [], ['groups' => ['financial_category_get', 'financial_category_get_children']]);
+        return $this->json($financialCategory, 200, [], ['groups' => ['financial_category_get', 'financial_category_get_children', 'financial_category_get_parent_id']]);
     }
 
     #[Route('/{id}', name: 'app_api_financial_category_delete', methods: 'DELETE')]
