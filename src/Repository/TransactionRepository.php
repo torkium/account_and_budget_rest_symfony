@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Transaction;
 use App\Entity\BankAccount;
 use App\Entity\ScheduledTransaction;
+use App\Enum\FinancialCategoryTypeEnum;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -86,6 +87,28 @@ class TransactionRepository extends ServiceEntityRepository
 
             $qb->andWhere($qb->expr()->in('t.financialCategory', $financialCategoriesIds));
         }
+        return $qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function getRealExpensesBetweenDates(BankAccount $bankAccount, \DateTime $startDate, \DateTime $endDate)
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->select('SUM(t.amount) as totalExpenses')
+            ->leftJoin('t.financialCategory', 'fc')
+            ->where('t.bankAccount = :bankAccount')
+            ->andWhere('t.date >= :startDate')
+            ->andWhere('t.date <= :endDate')
+            ->andWhere('(t.amount < 0 AND t.financialCategory is NULL) OR (t.amount < 0 AND fc.type = :undefinedType) OR fc.type IN (:expenseTypes)')
+            ->setParameter('bankAccount', $bankAccount)
+            ->setParameter('startDate', $startDate->format("Y-m-d"))
+            ->setParameter('endDate', $endDate->format("Y-m-d"))
+            ->setParameter('undefinedType', FinancialCategoryTypeEnum::Undefined->value)
+            ->setParameter('expenseTypes', [
+                FinancialCategoryTypeEnum::EssentialFixedExpense->value,
+                FinancialCategoryTypeEnum::EssentialVariableExpense->value,
+                FinancialCategoryTypeEnum::NonEssentialFlexibleExpense->value,
+            ]);
+
         return $qb->getQuery()->getSingleScalarResult();
     }
 

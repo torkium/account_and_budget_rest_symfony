@@ -46,6 +46,7 @@ class BankAccountService
         $summary->setStartBalance($this->bankAccountRepository->getBalanceAtDate($bankAccount, $startDate) ?? 0);
         $summary->setCredit($this->transactionRepository->getCreditBetweenDate($bankAccount, $startDate, $endDate) ?? 0);
         $summary->setDebit($this->transactionRepository->getDebitBetweenDate($bankAccount, $startDate, $endDate) ?? 0);
+        $summary->setRealExpenses($this->transactionRepository->getRealExpensesBetweenDates($bankAccount, $startDate, $endDate) ?? 0);
         
         $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange($bankAccount, $startDate, $endDate);
         $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $startDate, $endDate);
@@ -87,36 +88,18 @@ class BankAccountService
         return $summary;
     }
 
-    /**
-     * Calcule le montant ajusté d'un budget pour une période donnée.
-     *
-     * @param Budget $budget Le budget dont le montant doit être calculé.
-     * @param DateTime $startDate La date de début de la période.
-     * @param DateTime $endDate La date de fin de la période.
-     * @return float Le montant ajusté du budget.
-     */
     public function calculateAdjustedAmountForPeriod(Budget $budget, DateTime $startDate, DateTime $endDate): float
     {
         $frequency = $budget->getFrequency();
         $amount = $budget->getAmount();
 
-        // Calcule le nombre de périodes complètes entre startDate et endDate selon la fréquence du budget
         $periodCount = $this->calculatePeriodCount($startDate, $endDate, $frequency);
 
-        // Ajuste le montant du budget en fonction du nombre de périodes
         $adjustedAmount = $amount * $periodCount;
 
         return $adjustedAmount;
     }
 
-    /**
-     * Calcule le nombre de périodes complètes entre deux dates, en fonction de la fréquence.
-     *
-     * @param DateTime $startDate
-     * @param DateTime $endDate
-     * @param string $frequency
-     * @return int Le nombre de périodes complètes.
-     */
     private function calculatePeriodCount(DateTime $startDate, DateTime $endDate, $frequency): int
     {
         switch ($frequency) {

@@ -37,7 +37,7 @@ class FinancialCategoryController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
         $parent = null;
-        if (array_key_exists("parent_id", $data)) {
+        if (array_key_exists("parent_id", $data) && !empty($data['parent_id'])) {
             $parent = $financialCategoryRepository->findOneBy(['id' => $data['parent_id']]);
             $this->denyAccessUnlessGranted('VIEW', $parent);
         }

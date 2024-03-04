@@ -10,6 +10,8 @@ class BankAccountSummary
     #[Groups(["bank_account_summary_get"])]
     public float $debit = 0.0;
     #[Groups(["bank_account_summary_get"])]
+    public float $realExpenses = 0.0;
+    #[Groups(["bank_account_summary_get"])]
     public float $provisionalCredit = 0.0;
     #[Groups(["bank_account_summary_get"])]
     public float $provisionalDebit = 0.0;
@@ -45,6 +47,26 @@ class BankAccountSummary
     {
         $this->credit = $credit;
         $this->calculate();
+
+        return $this;
+    }
+
+    /**
+     * Get the value of realExpenses
+     */ 
+    public function getRealExpenses()
+    {
+        return $this->realExpenses;
+    }
+
+    /**
+     * Set the value of realExpenses
+     *
+     * @return  self
+     */ 
+    public function setRealExpenses($realExpenses)
+    {
+        $this->realExpenses = $realExpenses;
 
         return $this;
     }

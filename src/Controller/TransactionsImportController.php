@@ -7,7 +7,7 @@ use App\Entity\Transaction;
 use App\Repository\FinancialCategoryRepository;
 use App\Repository\ScheduledTransactionRepository;
 use App\Repository\TransactionRepository;
-use App\Service\CsvParserService;
+use App\Service\FileParserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,11 +16,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/bank-accounts/{bankAccount}/import', name: 'app_api_bank_account_import')]
-class CsvImportController extends AbstractController
+class TransactionsImportController extends AbstractController
 {
     private $csvParserService;
 
-    public function __construct(CsvParserService $csvParserService)
+    public function __construct(FileParserService $csvParserService)
     {
         $this->csvParserService = $csvParserService;
     }
@@ -34,7 +34,7 @@ class CsvImportController extends AbstractController
             return $this->json(['error' => 'No file uploaded'], Response::HTTP_BAD_REQUEST);
         }
 
-        $parsedDatas = $this->csvParserService->parseCsvFile($file);
+        $parsedDatas = $this->csvParserService->parseFile($file);
 
         if ($parsedDatas['headers'] === [] || $parsedDatas['datas'] === []) {
             return $this->json(['error' => 'Unable to parse CSV file'], Response::HTTP_BAD_REQUEST);
@@ -60,7 +60,7 @@ class CsvImportController extends AbstractController
             return $this->json(['error' => 'Missing required headers'], Response::HTTP_BAD_REQUEST);
         }
 
-        $parsedDatas = $this->csvParserService->parseCsvFile($file);
+        $parsedDatas = $this->csvParserService->parseFile($file);
         if (empty($parsedDatas['headers']) || empty($parsedDatas['datas'])) {
             return $this->json(['error' => 'Unable to parse CSV file'], Response::HTTP_BAD_REQUEST);
         }
