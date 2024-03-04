@@ -36,7 +36,7 @@ class BankAccountRepository extends ServiceEntityRepository
 
         $totalTransactions = $qb->getQuery()->getSingleScalarResult();
 
-        $balanceAtDate = $bankAccount->getInitialAmount() + ($totalTransactions ? $totalTransactions : 0);
+        $balanceAtDate = bcadd($bankAccount->getInitialAmount(),($totalTransactions ? $totalTransactions : 0), 2);
 
         return $balanceAtDate;
     }
