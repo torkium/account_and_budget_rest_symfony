@@ -129,6 +129,9 @@ class TransactionController extends AbstractController
             $this->denyAccessUnlessGranted('VIEW', $financialCategory);
             $transaction->setFinancialCategory($financialCategory);
         }
+        else{
+            $transaction->setFinancialCategory(null);
+        }
 
         if (isset($data['scheduledTransactionId'])) {
             $scheduledTransaction = $scheduledTransactionRepository->find($data['scheduledTransactionId']);
