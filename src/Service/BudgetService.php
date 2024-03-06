@@ -55,8 +55,8 @@ class BudgetService
                 }
                 $summary->provisionalConsumed = bcadd((string) $transaction->getAmount(), (string) $summary->provisionalConsumed, 2);
             }
-            $summary->summary = bcsub((string) $budget->getAmount(), (string) $summary->consumed, 2);
-            $summary->provisionalSummary = bcsub((string) $budget->getAmount(), (string) $summary->provisionalConsumed, 2);
+            $summary->summary = bcadd((string) $budget->getAmount(), (string) $summary->consumed, 2);
+            $summary->provisionalSummary = bcadd((string) $budget->getAmount(), (string) $summary->provisionalConsumed, 2);
 
             $budgetSummaries[] = $summary;
         }

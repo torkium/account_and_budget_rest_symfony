@@ -47,7 +47,7 @@ class BankAccountService
         $summary->setCredit($this->transactionRepository->getCreditBetweenDate($bankAccount, $startDate, $endDate) ?? 0);
         $summary->setDebit($this->transactionRepository->getDebitBetweenDate($bankAccount, $startDate, $endDate) ?? 0);
         $summary->setRealExpenses($this->transactionRepository->getRealExpensesBetweenDates($bankAccount, $startDate, $endDate) ?? 0);
-        
+
         $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange($bankAccount, $startDate, $endDate);
         $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $startDate, $endDate);
         $budgets = $this->budgetRepository->findBudgetsByDateRange($bankAccount, $startDate, $endDate);
@@ -56,11 +56,10 @@ class BankAccountService
         $summary->setProvisionalDebit($summary->getDebit());
 
         /** @var Transaction $transaction */
-        foreach($predictedTransactions as $transaction){
-            if($transaction->getAmount() >= 0){
+        foreach ($predictedTransactions as $transaction) {
+            if ($transaction->getAmount() >= 0) {
                 $summary->setProvisionalCredit($summary->getProvisionalCredit() + $transaction->getAmount());
-            }
-            else{
+            } else {
                 $summary->setProvisionalDebit($summary->getProvisionalDebit() + $transaction->getAmount());
             }
         }
@@ -68,23 +67,21 @@ class BankAccountService
         /** @var BudgetSummary[] $budgetSummaries */
         $budgetSummaries = $this->budgetService->calculateBudgetSummary($bankAccount, $startDate, $endDate);
         /** @var Budget $budget */
-        foreach($budgets as $budget){
+        foreach ($budgets as $budget) {
             $budgetAmount = $this->calculateAdjustedAmountForPeriod($budget, $startDate, $endDate);
-            $budgetSummary = array_filter($budgetSummaries, function($e) use ($budget){
+            $budgetSummary = array_filter($budgetSummaries, function ($e) use ($budget) {
                 /** @var BudgetSummary $e */
-                return $e->budget === $budget; // Condition pour filtrer
+                return $e->budget === $budget;
             })[0] ?? null;
-            if($budgetSummary){
-                $budgetAmount -= $budgetSummary->consumed;
+            if ($budgetSummary) {
+                $budgetAmount += $budgetSummary->consumed;
             }
-            if($budgetAmount < 0){
+            if ($budgetAmount < 0) {
                 $summary->setProvisionalCredit(bcadd($summary->getProvisionalCredit(), $budgetAmount, 2));
-            }
-            else{
+            } else {
                 $summary->setProvisionalDebit(bcsub($summary->getProvisionalDebit(), $budgetAmount, 2));
             }
         }
-
         return $summary;
     }
 

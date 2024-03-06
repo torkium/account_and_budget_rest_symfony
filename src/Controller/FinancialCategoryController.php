@@ -21,7 +21,7 @@ class FinancialCategoryController extends AbstractController
     {
         $hierarchicalFinancialCategories = $financialCategoryService->getOrganizeFinancialCategories();
 
-        return $this->json($hierarchicalFinancialCategories, 200, [], ['groups' => ['financial_category_get', 'financial_category_get_parent_id', 'financial_category_get_children']]);
+        return $this->json($hierarchicalFinancialCategories, 200, [], ['groups' => ['financial_category_get', 'financial_category_get_parent_id', 'financial_category_get_children', 'user_get_join']]);
     }
 
     #[Route('/{id}', name: 'app_api_financial_category_show', methods: 'GET')]
@@ -29,7 +29,7 @@ class FinancialCategoryController extends AbstractController
     {
         $this->denyAccessUnlessGranted('VIEW', $financialCategory);
 
-        return $this->json($financialCategory, 200, [], ['groups' => ['financial_category_get', 'financial_category_get_children', 'financial_category_get_parent_id']]);
+        return $this->json($financialCategory, 200, [], ['groups' => ['financial_category_get', 'financial_category_get_children', 'financial_category_get_parent_id', 'user_get_join']]);
     }
 
     #[Route('/', name: 'app_api_financial_category_create', methods: 'POST')]
@@ -49,7 +49,7 @@ class FinancialCategoryController extends AbstractController
         $entityManager->persist($financialCategory);
         $entityManager->flush();
 
-        return $this->json($financialCategory, 201, [], ['groups' => ['financial_category_get', 'financial_category_get_children', 'financial_category_get_parent_id']]);
+        return $this->json($financialCategory, 201, [], ['groups' => ['financial_category_get', 'financial_category_get_children', 'financial_category_get_parent_id', 'user_get_join']]);
     }
 
     #[Route('/{id}', name: 'app_api_financial_category_edit', methods: 'PUT')]
@@ -70,7 +70,7 @@ class FinancialCategoryController extends AbstractController
 
         $entityManager->flush();
 
-        return $this->json($financialCategory, 200, [], ['groups' => ['financial_category_get', 'financial_category_get_children', 'financial_category_get_parent_id']]);
+        return $this->json($financialCategory, 200, [], ['groups' => ['financial_category_get', 'financial_category_get_children', 'financial_category_get_parent_id', 'user_get_join']]);
     }
 
     #[Route('/{id}', name: 'app_api_financial_category_delete', methods: 'DELETE')]

@@ -40,7 +40,7 @@ class FinancialCategory
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
-    #[Groups(["user_get"])]
+    #[Groups(["user_get_join"])]
     private ?User $user = null;
 
     public function __construct()
@@ -105,9 +105,10 @@ class FinancialCategory
     {
         return $this->children;
     }
-    
+
     #[Groups(["financial_category_get_parent_id"])]
-    public function getParentId(): ?int{
+    public function getParentId(): ?int
+    {
         return $this->getParent()?->getId();
     }
 

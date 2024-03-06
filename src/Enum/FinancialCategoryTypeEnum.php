@@ -10,6 +10,7 @@ enum FinancialCategoryTypeEnum: string
     case NonEssentialFlexibleExpense = 'NonEssentialFlexibleExpense';
     case Savings = 'Savings';
     case Investment = 'Investment';
+    case Internal = 'Internal';
     case Income = 'Income';
     case DebtRepayment = 'DebtRepayment';
     case DonationCharity = 'DonationCharity';
