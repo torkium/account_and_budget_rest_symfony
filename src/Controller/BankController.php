@@ -18,7 +18,7 @@ class BankController extends AbstractController
     #[Route('/', name: 'app_api_bank_index', methods: 'GET')]
     public function index(BankRepository $bankRepository)
     {
-        $banks = $bankRepository->findAll();
+        $banks = $bankRepository->findAllSortedByLabel();
         return $this->json($banks, 200, [], ['groups' => ['bank_get']]);
     }
 

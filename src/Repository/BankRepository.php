@@ -20,4 +20,12 @@ class BankRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Bank::class);
     }
+
+    public function findAllSortedByLabel()
+    {
+        return $this->createQueryBuilder('b')
+            ->orderBy('b.label', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
