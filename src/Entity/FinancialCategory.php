@@ -82,6 +82,14 @@ class FinancialCategory
         return $this->parent;
     }
 
+    public function getRootParent(?FinancialCategory $rootMaxParentFinancialCategory): ?FinancialCategory
+    {
+        if($rootMaxParentFinancialCategory === $this || !$this->hasParent() || $this->getParent() === $rootMaxParentFinancialCategory){
+            return null;
+        }
+        return $this->getParent()->getRootParent($rootMaxParentFinancialCategory) ?? $this->getParent();
+    }
+
     public function setParent(?FinancialCategory $parent): self
     {
         $this->parent = $parent;
