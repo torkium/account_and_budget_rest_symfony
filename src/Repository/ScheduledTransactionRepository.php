@@ -3,9 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\ScheduledTransaction;
-use App\Entity\BankAccount;
-use App\Entity\FinancialCategory;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -23,7 +22,7 @@ class ScheduledTransactionRepository extends ServiceEntityRepository
         parent::__construct($registry, ScheduledTransaction::class);
     }
 
-    public function findScheduledTransactionsByDateRange(BankAccount $bankAccount, \DateTime $startDate, \DateTime $endDate, array $financialCategories = null)
+    public function findScheduledTransactionsByDateRange(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate, array $financialCategories = null)
     {
         $qb = $this->createQueryBuilder('st')
             ->andWhere('st.bankAccount = :bankAccount')
@@ -40,7 +39,57 @@ class ScheduledTransactionRepository extends ServiceEntityRepository
             $qb->andWhere($qb->expr()->in('st.financialCategory', $financialCategoriesIds));
         }
 
-        return $qb->setParameter('bankAccount', $bankAccount)
+        return $qb->setParameter('bankAccount', $bankAccounts)
+            ->setParameter('startDate', $startDate->format("Y-m-d"))
+            ->setParameter('endDate', $endDate->format("Y-m-d"))
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findCreditScheduledTransactionsByDateRange(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate, array $financialCategories = null)
+    {
+        $qb = $this->createQueryBuilder('st')
+        ->andWhere('st.bankAccount = :bankAccount')
+        ->andWhere('st.amount >= 0')
+            ->andWhere('(
+                (st.startDate <= :startDate AND (st.endDate Is NULL OR st.endDate >= :startDate))
+                OR
+                (st.startDate >= :startDate AND (st.endDate Is NULL OR st.startDate <= :endDate))
+            )');
+        if($financialCategories){
+            $financialCategoriesIds = array_map(function($financialCategory) {
+                return $financialCategory->getId();
+            }, $financialCategories);
+
+            $qb->andWhere($qb->expr()->in('st.financialCategory', $financialCategoriesIds));
+        }
+
+        return $qb->setParameter('bankAccount', $bankAccounts)
+            ->setParameter('startDate', $startDate->format("Y-m-d"))
+            ->setParameter('endDate', $endDate->format("Y-m-d"))
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findDebitScheduledTransactionsByDateRange(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate, array $financialCategories = null)
+    {
+        $qb = $this->createQueryBuilder('st')
+        ->andWhere('st.bankAccount = :bankAccount')
+        ->andWhere('st.amount < 0')
+            ->andWhere('(
+                (st.startDate <= :startDate AND (st.endDate Is NULL OR st.endDate >= :startDate))
+                OR
+                (st.startDate >= :startDate AND (st.endDate Is NULL OR st.startDate <= :endDate))
+            )');
+        if($financialCategories){
+            $financialCategoriesIds = array_map(function($financialCategory) {
+                return $financialCategory->getId();
+            }, $financialCategories);
+
+            $qb->andWhere($qb->expr()->in('st.financialCategory', $financialCategoriesIds));
+        }
+
+        return $qb->setParameter('bankAccount', $bankAccounts)
             ->setParameter('startDate', $startDate->format("Y-m-d"))
             ->setParameter('endDate', $endDate->format("Y-m-d"))
             ->getQuery()

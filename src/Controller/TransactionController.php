@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\FinancialCategoryRepository;
 use App\Repository\ScheduledTransactionRepository;
 use App\Service\ScheduledTransactionService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Route('/bank-accounts/{bankAccount}/transactions', name: 'app_api_transaction')]
@@ -38,7 +39,7 @@ class TransactionController extends AbstractController
 
         $realTransactions = $transactionRepository->findTransactionsByDateRange($bankAccount, $startDate, $endDate);
 
-        $applicableScheduledTransactions = $scheduledTransactionRepository->findScheduledTransactionsByDateRange($bankAccount, $startDate, $endDate);
+        $applicableScheduledTransactions = $scheduledTransactionRepository->findScheduledTransactionsByDateRange(new ArrayCollection([$bankAccount]), $startDate, $endDate);
         $predictedTransactions = [];
         foreach ($applicableScheduledTransactions as $scheduledTransaction) {
             $predictedTransactions = array_merge($predictedTransactions, $scheduledTransactionService->generateTransactionsForPeriod($scheduledTransaction, $startDate, $endDate));

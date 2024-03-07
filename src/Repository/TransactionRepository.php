@@ -6,7 +6,9 @@ use App\Entity\Transaction;
 use App\Entity\BankAccount;
 use App\Entity\ScheduledTransaction;
 use App\Enum\FinancialCategoryTypeEnum;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -19,6 +21,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class TransactionRepository extends ServiceEntityRepository
 {
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Transaction::class);
@@ -47,6 +50,104 @@ class TransactionRepository extends ServiceEntityRepository
         return $qb->orderBy('t.date', 'ASC')->getQuery()->getResult();
     }
 
+    /**
+     * Trouve les transactions par plage de dates et catégorie financière.
+     *
+     * @param ArrayCollection<BankAccount> $bankAccounts Comptes bancaires pour le filtrage
+     * @param DateTimeInterface $startDate Date de début de la plage
+     * @param DateTimeInterface $endDate Date de fin de la plage
+     * @param FinancialCategoryTypeEnum[] $categoryType Type de catégorie financière
+     * @return Transaction[] Renvoie un tableau de transactions
+     */
+    public function findByDateRangeAndCategory(ArrayCollection $bankAccounts, DateTimeInterface $startDate, DateTimeInterface $endDate, ArrayCollection $categoriesType): array
+    {
+
+        $qb = $this->createQueryBuilder('t')
+            ->innerJoin('t.financialCategory', 'fc')
+            ->where('t.date >= :startDate')
+            ->andWhere('t.date <= :endDate')
+            ->andWhere('t.bankAccount IN (:bankAccountIds)')
+            ->andWhere('fc.type IN (:categoryTypeIds)')
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->setParameter('categoryTypeIds', $categoriesType->map(function (FinancialCategoryTypeEnum $categoryType) {
+                return $categoryType->value;
+            })->toArray())
+            ->setParameter('bankAccountIds', $bankAccounts->map(function ($account) {
+                return $account->getId();
+            })->toArray())
+            ->orderBy('t.date', 'ASC');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getCreditTransactionsBetweenDates(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate, array $financialCategories = null, ArrayCollection $categoriesTypeToExclude = null)
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->select('t')
+            ->leftJoin('t.financialCategory', 'fc')
+            ->andWhere('t.bankAccount IN (:bankAccountIds)')
+            ->andWhere('t.date >= :startDate')
+            ->andWhere('t.date <= :endDate')
+            ->andWhere('t.amount >= 0');
+
+        if ($categoriesTypeToExclude) {
+            $qb->andWhere('fc is NULL OR fc.type NOT IN (:categoryTypeIds)')
+                ->setParameter('categoryTypeIds', $categoriesTypeToExclude->map(function (FinancialCategoryTypeEnum $categoryType) {
+                    return $categoryType->value;
+                })->toArray());
+        }
+        $qb
+            ->setParameter('bankAccountIds', $bankAccounts->map(function ($account) {
+                return $account->getId();
+            })->toArray())
+            ->setParameter('startDate', $startDate->format("Y-m-d"))
+            ->setParameter('endDate', $endDate->format("Y-m-d"));
+
+        if ($financialCategories) {
+            $financialCategoriesIds = array_map(function ($financialCategory) {
+                return $financialCategory->getId();
+            }, $financialCategories);
+
+            $qb->andWhere($qb->expr()->in('t.financialCategory', $financialCategoriesIds));
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getDebitTransactionsBetweenDates(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate, array $financialCategories = null, ArrayCollection $categoriesTypeToExclude = null)
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->select('t')
+            ->leftJoin('t.financialCategory', 'fc')
+            ->andWhere('t.bankAccount IN (:bankAccountIds)')
+            ->andWhere('t.date >= :startDate')
+            ->andWhere('t.date <= :endDate')
+            ->andWhere('t.amount < 0');
+
+        if ($categoriesTypeToExclude) {
+            $qb->andWhere('fc is NULL OR fc.type NOT IN (:categoryTypeIds)')
+                ->setParameter('categoryTypeIds', $categoriesTypeToExclude->map(function (FinancialCategoryTypeEnum $categoryType) {
+                    return $categoryType->value;
+                })->toArray());
+        }
+        $qb
+            ->setParameter('bankAccountIds', $bankAccounts->map(function ($account) {
+                return $account->getId();
+            })->toArray())
+            ->setParameter('startDate', $startDate->format("Y-m-d"))
+            ->setParameter('endDate', $endDate->format("Y-m-d"));
+
+        if ($financialCategories) {
+            $financialCategoriesIds = array_map(function ($financialCategory) {
+                return $financialCategory->getId();
+            }, $financialCategories);
+
+            $qb->andWhere($qb->expr()->in('t.financialCategory', $financialCategoriesIds));
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 
     public function getCreditBetweenDate(BankAccount $bankAccount, \DateTime $startDate, \DateTime $endDate, array $financialCategories = null)
     {

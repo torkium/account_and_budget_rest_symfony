@@ -11,6 +11,7 @@ use App\Repository\TransactionRepository;
 use App\Repository\ScheduledTransactionRepository;
 use DateTime;
 use DateTimeInterface;
+use Doctrine\Common\Collections\ArrayCollection;
 
 class BudgetService
 {
@@ -46,7 +47,7 @@ class BudgetService
             $financialCategories = $this->financialCategoryService->getAllAccessibleFinancialCategoriesFlat($budget->getFinancialCategory());
 
             $realTransactions = $this->transactionRepository->findTransactionsByDateRange($bankAccount, $startDate, $endDate, $financialCategories);
-            $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange($bankAccount, $startDate, $endDate, $financialCategories);
+            $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange(new ArrayCollection([$bankAccount]), $startDate, $endDate, $financialCategories);
             $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $startDate, $endDate);
             $allTransactions = array_merge($realTransactions, $predictedTransactions);
             foreach ($allTransactions as $transaction) {
@@ -65,34 +66,32 @@ class BudgetService
     }
 
     /**
-     * Calcule le montant ajusté d'un budget pour une période donnée.
+     * 
      *
-     * @param Budget $budget Le budget dont le montant doit être calculé.
-     * @param DateTime $startDate La date de début de la période.
-     * @param DateTime $endDate La date de fin de la période.
-     * @return float Le montant ajusté du budget.
+     * @param Budget $budget 
+     * @param DateTime $startDate 
+     * @param DateTime $endDate 
+     * @return float 
      */
     public function calculateAdjustedAmountForPeriod(Budget $budget, DateTime $startDate, DateTime $endDate): float
     {
         $frequency = $budget->getFrequency();
         $amount = $budget->getAmount();
 
-        // Calcule le nombre de périodes complètes entre startDate et endDate selon la fréquence du budget
         $periodCount = $this->calculatePeriodCount($startDate, $endDate, $frequency);
 
-        // Ajuste le montant du budget en fonction du nombre de périodes
         $adjustedAmount = $amount * $periodCount;
 
         return $adjustedAmount;
     }
 
     /**
-     * Calcule le nombre de périodes complètes entre deux dates, en fonction de la fréquence.
+     * 
      *
      * @param DateTime $startDate
      * @param DateTime $endDate
      * @param string $frequency
-     * @return int Le nombre de périodes complètes.
+     * @return int 
      */
     private function calculatePeriodCount(DateTime $startDate, DateTime $endDate, $frequency): int
     {

@@ -14,6 +14,7 @@ use App\Repository\TransactionRepository;
 use App\Repository\ScheduledTransactionRepository;
 use DateTime;
 use DateTimeInterface;
+use Doctrine\Common\Collections\ArrayCollection;
 
 class BankAccountService
 {
@@ -48,7 +49,7 @@ class BankAccountService
         $summary->setDebit($this->transactionRepository->getDebitBetweenDate($bankAccount, $startDate, $endDate) ?? 0);
         $summary->setRealExpenses($this->transactionRepository->getRealExpensesBetweenDates($bankAccount, $startDate, $endDate) ?? 0);
 
-        $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange($bankAccount, $startDate, $endDate);
+        $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange(new ArrayCollection([$bankAccount]), $startDate, $endDate);
         $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $startDate, $endDate);
         $budgets = $this->budgetRepository->findBudgetsByDateRange($bankAccount, $startDate, $endDate);
 
