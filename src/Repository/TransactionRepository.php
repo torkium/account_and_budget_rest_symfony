@@ -183,43 +183,51 @@ class TransactionRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function getCreditBetweenDate(BankAccount $bankAccount, \DateTime $startDate, \DateTime $endDate, array $financialCategories = null)
+    public function getCreditBetweenDate(BankAccount $bankAccount, ?\DateTime $startDate, ?\DateTime $endDate, array $financialCategories = null)
     {
         $qb = $this->createQueryBuilder('t')
-            ->select('SUM(t.amount)')
+            ->select('SUM(t.amount) as total')
             ->where('t.bankAccount = :bankAccount')
-            ->andWhere('t.date >= :startDate')
-            ->andWhere('t.date <= :endDate')
             ->andWhere('t.amount >= 0')
-            ->setParameter('bankAccount', $bankAccount)
-            ->setParameter('startDate', $startDate->format("Y-m-d"))
-            ->setParameter('endDate', $endDate->format("Y-m-d"));
+            ->setParameter('bankAccount', $bankAccount);
+    
+        if ($startDate) {
+            $qb->andWhere('t.date >= :startDate')
+               ->setParameter('startDate', $startDate->format("Y-m-d"));
+        }
+        if ($endDate) {
+            $qb->andWhere('t.date <= :endDate')
+               ->setParameter('endDate', $endDate->format("Y-m-d"));
+        }
         if ($financialCategories) {
             $financialCategoriesIds = array_map(function ($financialCategory) {
                 return $financialCategory->getId();
             }, $financialCategories);
-
             $qb->andWhere($qb->expr()->in('t.financialCategory', $financialCategoriesIds));
         }
         return $qb->getQuery()->getSingleScalarResult();
     }
 
-    public function getDebitBetweenDate(BankAccount $bankAccount, \DateTime $startDate, \DateTime $endDate, array $financialCategories = null)
+    public function getDebitBetweenDate(BankAccount $bankAccount, ?\DateTime $startDate, ?\DateTime $endDate, array $financialCategories = null)
     {
         $qb = $this->createQueryBuilder('t')
-            ->select('SUM(t.amount)')
+            ->select('SUM(t.amount) as total')
             ->where('t.bankAccount = :bankAccount')
-            ->andWhere('t.date >= :startDate')
-            ->andWhere('t.date <= :endDate')
             ->andWhere('t.amount < 0')
-            ->setParameter('bankAccount', $bankAccount)
-            ->setParameter('startDate', $startDate->format("Y-m-d"))
-            ->setParameter('endDate', $endDate->format("Y-m-d"));
+            ->setParameter('bankAccount', $bankAccount);
+    
+        if ($startDate) {
+            $qb->andWhere('t.date >= :startDate')
+               ->setParameter('startDate', $startDate->format("Y-m-d"));
+        }
+        if ($endDate) {
+            $qb->andWhere('t.date <= :endDate')
+               ->setParameter('endDate', $endDate->format("Y-m-d"));
+        }
         if ($financialCategories) {
             $financialCategoriesIds = array_map(function ($financialCategory) {
                 return $financialCategory->getId();
             }, $financialCategories);
-
             $qb->andWhere($qb->expr()->in('t.financialCategory', $financialCategoriesIds));
         }
         return $qb->getQuery()->getSingleScalarResult();

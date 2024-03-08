@@ -25,21 +25,23 @@ class ScheduledTransactionRepository extends ServiceEntityRepository
     public function findScheduledTransactionsByDateRange(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate, array $financialCategories = null)
     {
         $qb = $this->createQueryBuilder('st')
-            ->andWhere('st.bankAccount = :bankAccount')
+            ->andWhere('st.bankAccount IN (:bankAccountIds)')
             ->andWhere('(
                 (st.startDate <= :startDate AND (st.endDate Is NULL OR st.endDate >= :startDate))
                 OR
                 (st.startDate >= :startDate AND (st.endDate Is NULL OR st.startDate <= :endDate))
             )');
-        if($financialCategories){
-            $financialCategoriesIds = array_map(function($financialCategory) {
+        if ($financialCategories) {
+            $financialCategoriesIds = array_map(function ($financialCategory) {
                 return $financialCategory->getId();
             }, $financialCategories);
 
             $qb->andWhere($qb->expr()->in('st.financialCategory', $financialCategoriesIds));
         }
 
-        return $qb->setParameter('bankAccount', $bankAccounts)
+        return $qb->setParameter('bankAccountIds', $bankAccounts->map(function ($account) {
+            return $account->getId();
+        })->toArray())
             ->setParameter('startDate', $startDate->format("Y-m-d"))
             ->setParameter('endDate', $endDate->format("Y-m-d"))
             ->getQuery()
@@ -49,22 +51,24 @@ class ScheduledTransactionRepository extends ServiceEntityRepository
     public function findCreditScheduledTransactionsByDateRange(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate, array $financialCategories = null)
     {
         $qb = $this->createQueryBuilder('st')
-        ->andWhere('st.bankAccount = :bankAccount')
-        ->andWhere('st.amount >= 0')
+            ->andWhere('st.bankAccount IN (:bankAccountIds)')
+            ->andWhere('st.amount >= 0')
             ->andWhere('(
                 (st.startDate <= :startDate AND (st.endDate Is NULL OR st.endDate >= :startDate))
                 OR
                 (st.startDate >= :startDate AND (st.endDate Is NULL OR st.startDate <= :endDate))
             )');
-        if($financialCategories){
-            $financialCategoriesIds = array_map(function($financialCategory) {
+        if ($financialCategories) {
+            $financialCategoriesIds = array_map(function ($financialCategory) {
                 return $financialCategory->getId();
             }, $financialCategories);
 
             $qb->andWhere($qb->expr()->in('st.financialCategory', $financialCategoriesIds));
         }
 
-        return $qb->setParameter('bankAccount', $bankAccounts)
+        return $qb->setParameter('bankAccountIds', $bankAccounts->map(function ($account) {
+            return $account->getId();
+        })->toArray())
             ->setParameter('startDate', $startDate->format("Y-m-d"))
             ->setParameter('endDate', $endDate->format("Y-m-d"))
             ->getQuery()
@@ -74,22 +78,24 @@ class ScheduledTransactionRepository extends ServiceEntityRepository
     public function findDebitScheduledTransactionsByDateRange(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate, array $financialCategories = null)
     {
         $qb = $this->createQueryBuilder('st')
-        ->andWhere('st.bankAccount = :bankAccount')
-        ->andWhere('st.amount < 0')
+            ->andWhere('st.bankAccount IN (:bankAccountIds)')
+            ->andWhere('st.amount < 0')
             ->andWhere('(
                 (st.startDate <= :startDate AND (st.endDate Is NULL OR st.endDate >= :startDate))
                 OR
                 (st.startDate >= :startDate AND (st.endDate Is NULL OR st.startDate <= :endDate))
             )');
-        if($financialCategories){
-            $financialCategoriesIds = array_map(function($financialCategory) {
+        if ($financialCategories) {
+            $financialCategoriesIds = array_map(function ($financialCategory) {
                 return $financialCategory->getId();
             }, $financialCategories);
 
             $qb->andWhere($qb->expr()->in('st.financialCategory', $financialCategoriesIds));
         }
 
-        return $qb->setParameter('bankAccount', $bankAccounts)
+        return $qb->setParameter('bankAccountIds', $bankAccounts->map(function ($account) {
+            return $account->getId();
+        })->toArray())
             ->setParameter('startDate', $startDate->format("Y-m-d"))
             ->setParameter('endDate', $endDate->format("Y-m-d"))
             ->getQuery()

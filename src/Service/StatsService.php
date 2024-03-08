@@ -5,7 +5,6 @@ namespace App\Service;
 use App\DTO\Stats\AnnualValueForMonth;
 use App\Entity\FinancialCategory;
 use App\Enum\FinancialCategoryTypeEnum;
-use App\Repository\FinancialCategoryRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\ScheduledTransactionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -16,20 +15,17 @@ class StatsService
     private ScheduledTransactionRepository $scheduledTransactionRepository;
     private ScheduledTransactionService $scheduledTransactionService;
     private FinancialCategoryService $financialCategoryService;
-    private FinancialCategoryRepository $financialCategoryRepository;
 
     public function __construct(
         TransactionRepository $transactionRepository,
         ScheduledTransactionRepository $scheduledTransactionRepository,
         ScheduledTransactionService $scheduledTransactionService,
         FinancialCategoryService $financialCategoryService,
-        FinancialCategoryRepository $financialCategoryRepository
     ) {
         $this->transactionRepository = $transactionRepository;
         $this->scheduledTransactionRepository = $scheduledTransactionRepository;
         $this->scheduledTransactionService = $scheduledTransactionService;
         $this->financialCategoryService = $financialCategoryService;
-        $this->financialCategoryRepository = $financialCategoryRepository;
     }
 
     public function getAnnualIncomesByMonth(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate): array
@@ -39,11 +35,12 @@ class StatsService
             $startDate,
             $endDate,
             null,
+            null,
             new ArrayCollection([FinancialCategoryTypeEnum::Internal])
         );
 
         $scheduledTransactions = $this->scheduledTransactionRepository->findCreditScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate);
-        return $this->getValuesByMonth($bankAccounts, $startDate, $endDate, $transactions, $scheduledTransactions);
+        return $this->getValuesByMonth($startDate, $endDate, $transactions, $scheduledTransactions);
     }
 
     public function getAnnualExpensesByMonth(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate): array
@@ -53,16 +50,17 @@ class StatsService
             $startDate,
             $endDate,
             null,
+            null,
             new ArrayCollection([FinancialCategoryTypeEnum::Internal])
         );
 
         $scheduledTransactions = $this->scheduledTransactionRepository->findDebitScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate);
-        return $this->getValuesByMonth($bankAccounts, $startDate, $endDate, $transactions, $scheduledTransactions);
+        return $this->getValuesByMonth($startDate, $endDate, $transactions, $scheduledTransactions);
     }
 
-    private function getValuesByMonth(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate, array $transactions = [], array $scheduledTransactions = [])
+    private function getValuesByMonth(\DateTime $startDate, \DateTime $endDate, array $transactions = [], array $scheduledTransactions = [])
     {
-        $annualIncomesByMonth = [];
+        $annualValueByMonth = [];
 
         $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $startDate, $endDate);
 
@@ -81,10 +79,13 @@ class StatsService
         }
 
         foreach ($monthlyIncome as $month => $amount) {
-            $annualIncomesByMonth[] = new AnnualValueForMonth($amount, $month);
+            $annualValueByMonth[] = new AnnualValueForMonth($amount, $month);
         }
 
-        return $annualIncomesByMonth;
+        usort($annualValueByMonth, function($a, $b) {
+            return $a->month <=> $b->month;
+        });
+        return $annualValueByMonth;
     }
 
     public function getAnnualValuesByCategoryByMonth(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate, FinancialCategory $rootFinancialCategory = null): array
@@ -134,7 +135,9 @@ class StatsService
                 'month' => $date->format("Y-m")
             ];
         }
-
+        usort($results, function($a, $b) {
+            return $a['month'] <=> $b['month'];
+        });
         return $results;
     }
 
@@ -175,4 +178,66 @@ class StatsService
     
         return $results;
     }
+
+    public function getAnnualBalanceEvolutionByMonth(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate){
+        $results = [];
+
+        $dayBeforeStartDate = (clone $startDate)->modify('-1 day');
+        $balance = 0;
+        foreach ($bankAccounts as $bankAccount) {
+            $balance += $bankAccount->getInitialAmount();
+            $creditBeforeStartDate = $this->transactionRepository->getCreditBetweenDate($bankAccount, null, $dayBeforeStartDate);
+            $debitBeforeStartDate = $this->transactionRepository->getDebitBetweenDate($bankAccount, null, $dayBeforeStartDate);
+            $balance += $creditBeforeStartDate + $debitBeforeStartDate;
+        }
+
+        $transactions = $this->transactionRepository->getCreditTransactionsBetweenDates(
+            $bankAccounts,
+            $startDate,
+            $endDate,
+            null,
+            null,
+            new ArrayCollection([FinancialCategoryTypeEnum::Internal])
+        );
+        $scheduledTransactions = $this->scheduledTransactionRepository->findCreditScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate);
+        $creditByMonth = $this->getValuesByMonth($startDate, $endDate, $transactions, $scheduledTransactions);
+        
+
+        $transactions = $this->transactionRepository->getDebitTransactionsBetweenDates(
+            $bankAccounts,
+            $startDate,
+            $endDate,
+            null,
+            null,
+            new ArrayCollection([FinancialCategoryTypeEnum::Internal])
+        );
+        $scheduledTransactions = [];//$this->scheduledTransactionRepository->findDebitScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate);
+        $debitByMonth = $this->getValuesByMonth($startDate, $endDate, $transactions, $scheduledTransactions);
+        
+
+        $creditsMapped = array_reduce($creditByMonth, function($carry, $item) {
+            $carry[$item->month] = $item->amount;
+            return $carry;
+        }, []);
+        
+        $debitsMapped = array_reduce($debitByMonth, function($carry, $item) {
+            $carry[$item->month] = $item->amount;
+            return $carry;
+        }, []);
+
+        $period = new \DatePeriod($startDate, new \DateInterval('P1M'), $endDate);
+        foreach ($period as $date) {
+            $month = $date->format('Y-m');
+            if(isset($creditsMapped[$month])){
+                $balance += $creditsMapped[$month];
+            }
+            if(isset($debitsMapped[$month])){
+                $balance += $debitsMapped[$month];
+            }
+            $results[] = new AnnualValueForMonth($balance, $month);
+            
+        }
+        return $results;
+    }
+    
 }
