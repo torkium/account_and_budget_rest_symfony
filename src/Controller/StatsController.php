@@ -59,6 +59,22 @@ class StatsController extends AbstractController
         $stats = $statsService->getAnnualValuesByCategoryByMonth($bankAccounts, $startDate, $endDate, $rootCategory);
         return $this->json($stats, Response::HTTP_OK, [], ['groups' => [""]]);
     }
+    #[Route('/annual-expenses-by-category-by-month/{startDate}/{endDate}', name: 'app_api_stats_annual_expenses_by_category_by_month', methods: 'GET', requirements: ["startDate" => "\d{4}-\d{2}-\d{2}", "endDate" => "\d{4}-\d{2}-\d{2}"])]
+    public function annualExpensesByCategoryByMonth(Request $request, \DateTime $startDate, \DateTime $endDate, StatsService $statsService, FinancialCategoryRepository $financialCategoryRepository, BankAccountRepository $bankAccountRepository): JsonResponse
+    {
+        $rootCategoryFilter = $request->query->get('root_category');
+        $rootCategory = $rootCategoryFilter ? $financialCategoryRepository->findOneBy(["id" => $rootCategoryFilter]) : null;
+        /** @var User $user */
+        $user = $this->getUser();
+        $bankAccountFilter = $request->query->get('bank_account');
+        $bankAccount = $bankAccountFilter ? $bankAccountRepository->findOneBy(["id" => $bankAccountFilter]) : null;
+        if($bankAccount){
+            $this->denyAccessUnlessGranted('VIEW', $bankAccount);
+        }
+        $bankAccounts = $bankAccount ? new ArrayCollection([$bankAccount]) : $user->getBankAccounts();
+        $stats = $statsService->getAnnualExpensesByCategoryByMonth($bankAccounts, $startDate, $endDate, $rootCategory);
+        return $this->json($stats, Response::HTTP_OK, [], ['groups' => [""]]);
+    }
     #[Route('/annual-expenses-by-category/{startDate}/{endDate}', name: 'app_api_stats_annual_values_by_category', methods: 'GET', requirements: ["startDate" => "\d{4}-\d{2}-\d{2}", "endDate" => "\d{4}-\d{2}-\d{2}"])]
     public function annualExpensesByCategory(Request $request, \DateTime $startDate, \DateTime $endDate, StatsService $statsService, FinancialCategoryRepository $financialCategoryRepository, BankAccountRepository $bankAccountRepository): JsonResponse
     {

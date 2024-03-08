@@ -141,6 +141,59 @@ class StatsService
         return $results;
     }
 
+    public function getAnnualExpensesByCategoryByMonth(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate, FinancialCategory $rootFinancialCategory = null): array
+    {
+        $results = [];
+
+        $period = new \DatePeriod($startDate, new \DateInterval('P1M'), $endDate);
+        foreach ($period as $date) {
+            $monthStart = new \DateTime($date->format("Y-m-01"));
+            $monthEnd = new \DateTime($date->format("Y-m-t"));
+
+            $financialCategories = $this->financialCategoryService->getAllAccessibleFinancialCategoriesFlat($rootFinancialCategory);
+            $transactions = $this->transactionRepository->getDebitTransactionsBetweenDates(
+                $bankAccounts,
+                $startDate,
+                $endDate,
+                new ArrayCollection($financialCategories),
+                null,
+                new ArrayCollection([FinancialCategoryTypeEnum::Internal])
+            );
+            $scheduledTransactions = $this->scheduledTransactionRepository->findDebitScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate, $financialCategories);
+            $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $startDate, $endDate);
+            $transactions = array_merge($transactions, $predictedTransactions);
+
+            $monthlyData = [];
+            foreach ($transactions as $transaction) {
+                $category = $transaction->getFinancialCategory();
+                $rootCategory = $category ? $transaction->getFinancialCategory()->getRootParent($rootFinancialCategory) : null;
+                $categoryLabel = $rootCategory ? $rootCategory->getLabel() : null;
+                $categoryLabel = $categoryLabel ? $categoryLabel : $category->getLabel();
+                if (!isset($monthlyData[$categoryLabel])) {
+                    $monthlyData[$categoryLabel] = 0;
+                }
+                $monthlyData[$categoryLabel] += $transaction->getAmount();
+            }
+
+            $dataEntries = [];
+            foreach ($monthlyData as $category => $amount) {
+                $dataEntries[] = [
+                    'category' => $category,
+                    'amount' => $amount
+                ];
+            }
+
+            $results[] = [
+                'datas' => $dataEntries,
+                'month' => $date->format("Y-m")
+            ];
+        }
+        usort($results, function($a, $b) {
+            return $a['month'] <=> $b['month'];
+        });
+        return $results;
+    }
+
     public function getAnnuaExpensesByCategory(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate, FinancialCategory $rootFinancialCategory = null): array
     {
         $results = [];
