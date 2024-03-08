@@ -16,6 +16,7 @@ class BankFixtures extends Fixture
             "Crédit du Nord",
             "Crédit Mutuel",
             "BNP Paribas",
+            "Boursorama Bank",
             "Société Générale",
             "Caisse d'Epargne",
             "Banque Populaire",
@@ -38,6 +39,7 @@ class BankFixtures extends Fixture
             "Fortuneo",
             "Banque BCP",
             "Banque de Savoie",
+            "Autre banque",
         ];
         foreach($banks as $bank){
             $this->createBank($manager, $bank);
