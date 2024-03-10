@@ -39,11 +39,12 @@ class UserController extends AbstractController
     private function loadCategoriesForNewUser(EntityManager $manager, User $user): void
     {
         $income = $this->createCategory($manager, 'Revenus', FinancialCategoryTypeEnum::Income, null, $user);
+        $vieCourante = $this->createCategory($manager, 'Vie Courante', FinancialCategoryTypeEnum::Income, null, $user);
         $logement = $this->createCategory($manager, 'Logement', FinancialCategoryTypeEnum::EssentialFixedExpense, null, $user);
-        $alimentation = $this->createCategory($manager, 'Alimentation', FinancialCategoryTypeEnum::EssentialVariableExpense, null, $user);
-        $transport = $this->createCategory($manager, 'Transport', FinancialCategoryTypeEnum::EssentialVariableExpense, null, $user);
+        $alimentation = $this->createCategory($manager, 'Alimentation', FinancialCategoryTypeEnum::EssentialVariableExpense, $vieCourante, $user);
+        $transport = $this->createCategory($manager, 'Transport', FinancialCategoryTypeEnum::EssentialVariableExpense, $vieCourante, $user);
         $loisirs = $this->createCategory($manager, 'Loisirs', FinancialCategoryTypeEnum::NonEssentialFlexibleExpense, null, $user);
-        $sante = $this->createCategory($manager, 'Santé', FinancialCategoryTypeEnum::EssentialVariableExpense, null, $user);
+        $sante = $this->createCategory($manager, 'Santé', FinancialCategoryTypeEnum::EssentialVariableExpense, $vieCourante, $user);
         $education = $this->createCategory($manager, 'Education', FinancialCategoryTypeEnum::EssentialVariableExpense, null, $user);
         $habillage = $this->createCategory($manager, 'Habillage et soins personnels', FinancialCategoryTypeEnum::NonEssentialFlexibleExpense, null, $user);
         $fraisBancaires = $this->createCategory($manager, 'Frais bancaires', FinancialCategoryTypeEnum::EssentialVariableExpense, null, $user);
@@ -52,6 +53,7 @@ class UserController extends AbstractController
         $savings = $this->createCategory($manager, 'Épargne', FinancialCategoryTypeEnum::Savings, null, $user);
         $investments = $this->createCategory($manager, 'Investissements', FinancialCategoryTypeEnum::Investment, null, $user);
         $debtsLoans = $this->createCategory($manager, 'Dettes et Prêts', FinancialCategoryTypeEnum::DebtRepayment, null, $user);
+        $debtsLoans = $this->createCategory($manager, 'Transactions internes', FinancialCategoryTypeEnum::Internal, null, $user);
         $this->createCategory($manager, 'Salaire', FinancialCategoryTypeEnum::Income, $income, $user);
         $this->createCategory($manager, 'Bonus', FinancialCategoryTypeEnum::Income, $income, $user);
         $this->createCategory($manager, 'Revenus locatifs', FinancialCategoryTypeEnum::Income, $income, $user);
@@ -62,9 +64,9 @@ class UserController extends AbstractController
         $this->createCategory($manager, 'Loyer ou prêt immobilier', FinancialCategoryTypeEnum::EssentialFixedExpense, $logement, $user);
         $this->createCategory($manager, 'Travaux', FinancialCategoryTypeEnum::EssentialVariableExpense, $logement, $user);
         $this->createCategory($manager, 'Assurances', FinancialCategoryTypeEnum::EssentialFixedExpense, $logement, $user);
-        $this->createCategory($manager, 'Eau, gaz, électricité', FinancialCategoryTypeEnum::EssentialFixedExpense, $logement, $user);
-        $this->createCategory($manager, 'Internet et téléphone', FinancialCategoryTypeEnum::EssentialFixedExpense, $logement, $user);
-        $maisonEtJardin = $this->createCategory($manager, 'Maison et jardin / Equipements', FinancialCategoryTypeEnum::NonEssentialFlexibleExpense, $logement, $user);
+        $this->createCategory($manager, 'Eau, gaz, électricité', FinancialCategoryTypeEnum::EssentialFixedExpense, $vieCourante, $user);
+        $this->createCategory($manager, 'Internet et téléphone', FinancialCategoryTypeEnum::EssentialFixedExpense, $vieCourante, $user);
+        $maisonEtJardin = $this->createCategory($manager, 'Maison et jardin / Equipements', FinancialCategoryTypeEnum::NonEssentialFlexibleExpense, $vieCourante, $user);
 
         $this->createCategory($manager, 'Aménagement intérieur', FinancialCategoryTypeEnum::NonEssentialFlexibleExpense, $maisonEtJardin, $user);
         $this->createCategory($manager, 'Électroménager ', FinancialCategoryTypeEnum::NonEssentialFlexibleExpense, $maisonEtJardin, $user);

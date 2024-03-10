@@ -42,7 +42,7 @@ class BudgetService
         $budgetSummaries = [];
 
         foreach ($budgets as $budget) {
-            $budget->setAmount($this->calculateAdjustedAmountForPeriod($budget, $startDate, $endDate));
+            $budget->setAmount($this->calculateAdjustedAmountForPeriod([$budget], $startDate, $endDate));
             $summary = new BudgetSummary($budget);
             $financialCategories = $this->financialCategoryService->getAllAccessibleFinancialCategoriesFlat($budget->getFinancialCategory());
 
@@ -68,21 +68,38 @@ class BudgetService
     /**
      * 
      *
-     * @param Budget $budget 
+     * @param Budget[] $budgets 
      * @param DateTime $startDate 
      * @param DateTime $endDate 
      * @return float 
      */
-    public function calculateAdjustedAmountForPeriod(Budget $budget, DateTime $startDate, DateTime $endDate): float
+    public function calculateAdjustedAmountForPeriod(array $budgets, DateTime $startDate, DateTime $endDate): float
     {
-        $frequency = $budget->getFrequency();
-        $amount = $budget->getAmount();
-
-        $periodCount = $this->calculatePeriodCount($startDate, $endDate, $frequency);
-
-        $adjustedAmount = $amount * $periodCount;
+        $adjustedAmount = 0;
+        foreach($budgets as $budget){
+            $frequency = $budget->getFrequency();
+            $amount = $budget->getAmount();
+    
+            $periodCount = $this->calculatePeriodCount($startDate, $endDate, $frequency);
+    
+            $adjustedAmount = $amount * $periodCount;
+        }
 
         return $adjustedAmount;
+    }
+
+    /**
+     * 
+     *
+     * @param BankAccount $bankAccount 
+     * @param DateTime $startDate 
+     * @param DateTime $endDate 
+     * @return float 
+     */
+    public function calculateAdjustedAmountForPeriodForBankAccount(BankAccount $bankAccount, DateTime $startDate, DateTime $endDate): float
+    {
+        $budgets = $this->budgetRepository->findBy(["bankAccount" => $bankAccount]);
+        return $this->calculateAdjustedAmountForPeriod($budgets, $startDate, $endDate);
     }
 
     /**

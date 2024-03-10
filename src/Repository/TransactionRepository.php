@@ -101,7 +101,7 @@ class TransactionRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function getCreditTransactionsBetweenDates(ArrayCollection $bankAccounts, DateTimeInterface $startDate, DateTimeInterface $endDate, ArrayCollection $financialCategories = null, ArrayCollection $categoriesType = null, ArrayCollection $categoriesTypeToExclude = null)
+    public function getCreditTransactionsBetweenDates(ArrayCollection $bankAccounts, DateTimeInterface $startDate, DateTimeInterface $endDate, ArrayCollection | null $financialCategories = null, ArrayCollection | null $categoriesType = null, ArrayCollection | null $categoriesTypeToExclude = null)
     {
         $qb = $this->createQueryBuilder('t')
             ->select('t')
@@ -142,7 +142,7 @@ class TransactionRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function getDebitTransactionsBetweenDates(ArrayCollection $bankAccounts, DateTimeInterface $startDate, DateTimeInterface $endDate, ArrayCollection $financialCategories = null, ArrayCollection $categoriesType = null, ArrayCollection $categoriesTypeToExclude = null)
+    public function getDebitTransactionsBetweenDates(ArrayCollection $bankAccounts, DateTimeInterface $startDate, DateTimeInterface $endDate, ArrayCollection | null $financialCategories = null, ArrayCollection | null $categoriesType = null, ArrayCollection | null $categoriesTypeToExclude = null)
     {
         $qb = $this->createQueryBuilder('t')
             ->select('t')

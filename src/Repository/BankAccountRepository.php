@@ -40,4 +40,27 @@ class BankAccountRepository extends ServiceEntityRepository
 
         return $balanceAtDate;
     }
+
+    
+
+    public function getTotalTransactions(BankAccount $bankAccount, \DateTime $date=null)
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        
+        $qb->select('SUM(t.amount) as totalTransactions')
+            ->from('App\Entity\Transaction', 't')
+            ->where('t.bankAccount = :bankAccount');
+        if($date){
+            $qb->andWhere('t.date < :date')
+            ->setParameter('date', $date);
+        }
+        $qb
+            ->setParameter('bankAccount', $bankAccount);
+
+        $totalTransactions = $qb->getQuery()->getSingleScalarResult();
+
+        $balanceAtDate = $totalTransactions ? $totalTransactions : 0;
+
+        return $balanceAtDate;
+    }
 }

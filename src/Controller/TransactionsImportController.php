@@ -151,7 +151,7 @@ class TransactionsImportController extends AbstractController
             $reference = $bankAccount->getId() . "_" . $data[$headers['headers_date']] . "_" . $data[$headers['headers_libelle']] . "_" . $data[$headers['headers_amount']];
             while (in_array($reference, $references)) {
                 $i = 1;
-                $references .= "_" . $i;
+                $reference .= "_" . $i;
                 $i++;
             }
             $data['reference'] = $reference;

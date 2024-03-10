@@ -10,8 +10,10 @@ use App\Entity\BankAccount;
 use App\Entity\User;
 use App\Entity\UserBankAccount;
 use App\Enum\PermissionEnum;
+use App\Repository\BankAccountRepository;
 use App\Repository\BankRepository;
 use App\Service\BankAccountService;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -55,7 +57,7 @@ class BankAccountController extends AbstractController
         $bankAccount = new BankAccount();
         $bankAccount->setLabel($data['label']);
         $bankAccount->setAccountNumber($data['account_number']);
-        $bankAccount->setInitialAmount($data['initial_amount']);
+        $bankAccount->setInitialAmount($data['initial_amount'] ?? 0);
         $bankAccount->setBank($bank);
 
         $userBankAccount = new UserBankAccount();
@@ -85,7 +87,7 @@ class BankAccountController extends AbstractController
         }
         $bank_account->setLabel($data['label']);
         $bank_account->setAccountNumber($data['account_number']);
-        $bank_account->setInitialAmount($data['initial_amount']);
+        $bank_account->setInitialAmount($data['initial_amount']) ?? 0;
 
         $entityManager->flush();
 
@@ -119,5 +121,22 @@ class BankAccountController extends AbstractController
         $bankAccountSummaries = $bankAccountService->calculateBankAccountSummary($bank_account, $startDate, $endDate);
     
         return $this->json($bankAccountSummaries, Response::HTTP_OK, [], ['groups' => ['bank_account_summary_get']]);
+    }
+
+    #[Route('/{bank_account}/init-balance', name: 'app_api_bank_account_init_balance', methods: 'PUT')]
+    public function initBalance(Request $request, BankAccount $bank_account, BankAccountRepository $bankAccountRepository, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('EDIT', $bank_account);
+    
+        $data = json_decode($request->getContent(), true);
+        
+        if(!array_key_exists("actual_balance", $data)){
+            return $this->json(['error' => 'actual_balance required.'], Response::HTTP_BAD_REQUEST);
+        }
+        $actual_balance = $data["actual_balance"];
+        $bank_account->setInitialAmount(bcsub($actual_balance,$bankAccountRepository->getTotalTransactions($bank_account), 2));
+        $entityManager->persist($bank_account);
+        $entityManager->flush();
+        return $this->json($bank_account, Response::HTTP_OK, [], ['groups' => ['bank_account_get', 'bank_get', 'user_get_join']]);
     }
 }
