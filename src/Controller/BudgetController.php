@@ -13,11 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Enum\FrequencyEnum;
-use App\Repository\ScheduledTransactionRepository;
-use App\Repository\TransactionRepository;
 use App\Service\BudgetService;
-use App\Service\FinancialCategoryService;
-use App\Service\ScheduledTransactionService;
 
 #[Route('/bank-accounts/{bankAccount}/budgets', name: 'app_api_budget')]
 class BudgetController extends AbstractController
@@ -124,7 +120,7 @@ class BudgetController extends AbstractController
             return $this->json(['error' => 'start_date and end_date required.'], Response::HTTP_BAD_REQUEST);
         }
     
-        $budgetSummaries = $budgetService->calculateBudgetSummary($bankAccount, $startDate, $endDate);
+        $budgetSummaries = $budgetService->calculateBudgetsSummaries($bankAccount, $startDate, $endDate);
     
         return $this->json($budgetSummaries, Response::HTTP_OK, [], ['groups' => ['budget_get', 'financial_category_get', 'financial_category_get_children', 'budget_summary_get']]);
     }

@@ -7,6 +7,7 @@ use App\DTO\BudgetSummary;
 use App\Entity\BankAccount;
 use App\Entity\Budget;
 use App\Entity\Transaction;
+use App\Enum\FinancialCategoryTypeEnum;
 use App\Enum\FrequencyEnum;
 use App\Repository\BankAccountRepository;
 use App\Repository\BudgetRepository;
@@ -45,13 +46,14 @@ class BankAccountService
     {
         $summary = new BankAccountSummary();
         $summary->setStartBalance($this->bankAccountRepository->getBalanceAtDate($bankAccount, $startDate) ?? 0);
-        $summary->setCredit($this->transactionRepository->getCreditBetweenDate($bankAccount, $startDate, $endDate) ?? 0);
-        $summary->setDebit($this->transactionRepository->getDebitBetweenDate($bankAccount, $startDate, $endDate) ?? 0);
-        $summary->setRealExpenses($this->transactionRepository->getRealExpensesBetweenDates($bankAccount, $startDate, $endDate) ?? 0);
+        $summary->setCredit($this->transactionRepository->getValue([$bankAccount], $startDate, $endDate, null, null, null, 1) ?? 0);
+        $summary->setDebit($this->transactionRepository->getValue([$bankAccount], $startDate, $endDate, null, null, null, -1) ?? 0);
+        $realExpenses = $this->transactionRepository->getValue([$bankAccount], $startDate, $endDate, null, FinancialCategoryTypeEnum::expenseTypes(), null, 0) ?? 0;
+        $realExpenses += $this->transactionRepository->getValue([$bankAccount], $startDate, $endDate, null, [FinancialCategoryTypeEnum::Undefined], null, -1) ?? 0;
+        $summary->setRealExpenses($realExpenses);
 
         $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange(new ArrayCollection([$bankAccount]), $startDate, $endDate);
         $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $startDate, $endDate);
-        $budgets = $this->budgetRepository->findBudgetsByDateRange($bankAccount, $startDate, $endDate);
 
         $summary->setProvisionalCredit($summary->getCredit());
         $summary->setProvisionalDebit($summary->getDebit());
@@ -59,31 +61,42 @@ class BankAccountService
         /** @var Transaction $transaction */
         foreach ($predictedTransactions as $transaction) {
             if ($transaction->getAmount() >= 0) {
-                $summary->setProvisionalCredit($summary->getProvisionalCredit() + $transaction->getAmount());
+                $summary->setProvisionalCredit(bcadd($summary->getProvisionalCredit(), $transaction->getAmount(), 2));
             } else {
-                $summary->setProvisionalDebit($summary->getProvisionalDebit() + $transaction->getAmount());
+                $summary->setProvisionalDebit(bcadd($summary->getProvisionalDebit(), $transaction->getAmount(), 2));
             }
         }
 
-        /** @var BudgetSummary[] $budgetSummaries */
-        $budgetSummaries = $this->budgetService->calculateBudgetSummary($bankAccount, $startDate, $endDate);
-        /** @var Budget $budget */
-        foreach ($budgets as $budget) {
-            $budgetAmount = $this->calculateAdjustedAmountForPeriod($budget, $startDate, $endDate);
-            $budgetSummary = array_filter($budgetSummaries, function ($e) use ($budget) {
-                /** @var BudgetSummary $e */
-                return $e->budget === $budget;
-            })[0] ?? null;
-            if ($budgetSummary) {
-                $budgetAmount += $budgetSummary->consumed;
-            }
-            if ($budgetAmount < 0) {
-                $summary->setProvisionalCredit(bcadd($summary->getProvisionalCredit(), $budgetAmount, 2));
-            } else {
-                $summary->setProvisionalDebit(bcsub($summary->getProvisionalDebit(), $budgetAmount, 2));
+        $firstDayOfCurrentMonth = new DateTime('first day of this month');
+        $firstDayOfCurrentMonth->setTime(0, 0, 0);
+        if ($endDate >= $firstDayOfCurrentMonth && $startDate >= $firstDayOfCurrentMonth) {
+            /** @var BudgetSummary[] $budgetSummaries */
+            $budgetSummaries = $this->budgetService->calculateBudgetsSummaries($bankAccount, $startDate, $endDate);
+            /** @var Budget $budget */
+            foreach ($budgetSummaries as $budgetSummary) {
+                /** @var BudgetSummary $budgetSummary */
+                if ($budgetSummary->summary > 0) {
+                    $summary->setProvisionalDebit(bcsub($summary->getProvisionalDebit(), $budgetSummary->summary, 2));
+                }
             }
         }
         return $summary;
+    }
+
+    public function calculateBankAccountSummaryByMonth(BankAccount $bankAccount, DateTimeInterface $startDate, DateTimeInterface $endDate): array
+    {
+        $results = [];
+        $period = new \DatePeriod($startDate, new \DateInterval('P1M'), $endDate);
+        foreach ($period as $date) {
+            $monthStart = new \DateTime($date->format("Y-m-01"));
+            $monthEnd = new \DateTime($date->format("Y-m-t"));
+
+            $results[] = [
+                'datas' => $this->calculateBankAccountSummary($bankAccount, $monthStart, $monthEnd),
+                'month' => $date->format("Y-m")
+            ];
+        }
+        return $results;
     }
 
     public function calculateAdjustedAmountForPeriod(Budget $budget, DateTime $startDate, DateTime $endDate): float

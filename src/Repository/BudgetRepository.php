@@ -3,7 +3,6 @@
 namespace App\Repository;
 
 use App\Entity\Budget;
-use App\Entity\BankAccount;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -22,13 +21,15 @@ class BudgetRepository extends ServiceEntityRepository
         parent::__construct($registry, Budget::class);
     }
 
-    public function findBudgetsByDateRange(BankAccount $bankAccount, \DateTime $startDate, \DateTime $endDate)
+    public function findBudgetsByDateRange(array $bankAccounts, \DateTime $startDate, \DateTime $endDate)
     {
         return $this->createQueryBuilder('b')
-            ->andWhere('b.bankAccount = :bankAccount')
+            ->andWhere('b.bankAccount IN (:bankAccountIds)')
             ->andWhere('b.startDate <= :startDate')
             ->andWhere('b.endDate >= :endDate OR b.endDate IS NULL')
-            ->setParameter('bankAccount', $bankAccount)
+            ->setParameter('bankAccountIds', array_map(function ($account) {
+                return $account->getId();
+            }, $bankAccounts))
             ->setParameter('startDate', $startDate)
             ->setParameter('endDate', $endDate)
             ->getQuery()

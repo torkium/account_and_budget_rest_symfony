@@ -6,6 +6,8 @@ use App\DTO\BudgetSummary;
 use App\DTO\Stats\AnnualValueForMonth;
 use App\Entity\FinancialCategory;
 use App\Enum\FinancialCategoryTypeEnum;
+use App\Repository\BankAccountRepository;
+use App\Repository\BudgetRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\ScheduledTransactionRepository;
 use DateTime;
@@ -15,6 +17,8 @@ class StatsService
 {
     private TransactionRepository $transactionRepository;
     private ScheduledTransactionRepository $scheduledTransactionRepository;
+    private BankAccountRepository $bankAccountRepository;
+    private BudgetRepository $budgetRepository;
     private ScheduledTransactionService $scheduledTransactionService;
     private FinancialCategoryService $financialCategoryService;
     private BudgetService $budgetService;
@@ -22,12 +26,16 @@ class StatsService
     public function __construct(
         TransactionRepository $transactionRepository,
         ScheduledTransactionRepository $scheduledTransactionRepository,
+        BankAccountRepository $bankAccountRepository,
+        BudgetRepository $budgetRepository,
         ScheduledTransactionService $scheduledTransactionService,
         FinancialCategoryService $financialCategoryService,
         BudgetService $budgetService,
     ) {
         $this->transactionRepository = $transactionRepository;
         $this->scheduledTransactionRepository = $scheduledTransactionRepository;
+        $this->bankAccountRepository = $bankAccountRepository;
+        $this->budgetRepository = $budgetRepository;
         $this->scheduledTransactionService = $scheduledTransactionService;
         $this->financialCategoryService = $financialCategoryService;
         $this->budgetService = $budgetService;
@@ -35,6 +43,7 @@ class StatsService
 
     public function getAnnualIncomesByMonth(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate): array
     {
+
         $transactions = $this->transactionRepository->getCreditTransactionsBetweenDates(
             $bankAccounts,
             $startDate,
@@ -43,7 +52,7 @@ class StatsService
             null,
             count($bankAccounts) === 1 ? null : new ArrayCollection([FinancialCategoryTypeEnum::Internal])
         );
-
+        
         $scheduledTransactions = $this->scheduledTransactionRepository->findCreditScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate);
         return $this->getValuesByMonth($startDate, $endDate, $transactions, $scheduledTransactions);
     }
@@ -59,11 +68,12 @@ class StatsService
             count($bankAccounts) === 1 ? null : new ArrayCollection([FinancialCategoryTypeEnum::Internal])
         );
 
+        $budgets = $this->budgetRepository->findBudgetsByDateRange($bankAccounts->toArray(), $startDate, $endDate);
         $scheduledTransactions = $this->scheduledTransactionRepository->findDebitScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate);
-        return $this->getValuesByMonth($startDate, $endDate, $transactions, $scheduledTransactions);
+        return $this->getValuesByMonth($startDate, $endDate, $transactions, $scheduledTransactions, $budgets);
     }
 
-    private function getValuesByMonth(\DateTime $startDate, \DateTime $endDate, array $transactions = [], array $scheduledTransactions = [])
+    private function getValuesByMonth(\DateTime $startDate, \DateTime $endDate, array $transactions = [], array $scheduledTransactions = [], array $budgets = [])
     {
         $annualValueByMonth = [];
 
@@ -71,19 +81,28 @@ class StatsService
 
         $transactions = array_merge($transactions, $predictedTransactions);
 
-        $monthlyIncome = [];
+        $monthlyValue = [];
 
         foreach ($transactions as $transaction) {
             $month = $transaction->getDate()->format('Y-m');
 
-            if (!isset($monthlyIncome[$month])) {
-                $monthlyIncome[$month] = 0;
+            if (!isset($monthlyValue[$month])) {
+                $monthlyValue[$month] = 0;
             }
 
-            $monthlyIncome[$month] += $transaction->getAmount();
+            $monthlyValue[$month] += $transaction->getAmount();
         }
 
-        foreach ($monthlyIncome as $month => $amount) {
+        foreach ($monthlyValue as $month => $amount) {
+            $monthStart = new \DateTime($month . "-01");
+            $monthEnd = new \DateTime($monthStart->format("Y-m-t"));
+            foreach($budgets as $budget){
+                /** @var BudgetSummary $budgetSummary */
+                $budgetSummary = $this->budgetService->calculateBudgetSummary($budget, $monthStart, $monthEnd);
+                if ($budgetSummary->summary > 0) {
+                    $amount = bcsub($amount, $budgetSummary->summary, 2);
+                }
+            }
             $annualValueByMonth[] = new AnnualValueForMonth($amount, $month);
         }
 
@@ -100,6 +119,7 @@ class StatsService
         $period = new \DatePeriod($startDate, new \DateInterval('P1M'), $endDate);
         $financialCategories = $this->financialCategoryService->getAllAccessibleFinancialCategoriesFlat($rootFinancialCategory);
         $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate, $financialCategories);
+
         foreach ($period as $date) {
             $monthStart = new \DateTime($date->format("Y-m-01"));
             $monthEnd = new \DateTime($date->format("Y-m-t"));
@@ -156,14 +176,16 @@ class StatsService
             $monthStart = new \DateTime($date->format("Y-m-01"));
             $monthEnd = new \DateTime($date->format("Y-m-t"));
 
-            $transactions = $this->transactionRepository->getDebitTransactionsBetweenDates(
-                $bankAccounts,
+            $transactions = $this->transactionRepository->getTransactions(
+                $bankAccounts->toArray(),
                 $monthStart,
                 $monthEnd,
-                new ArrayCollection($financialCategories),
                 null,
-                count($bankAccounts) === 1 ? null : new ArrayCollection([FinancialCategoryTypeEnum::Internal])
+                FinancialCategoryTypeEnum::expenseTypes(),
+                null,
+                0
             );
+
             $scheduledTransactions = $this->scheduledTransactionRepository->findDebitScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate, $financialCategories);
             $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $monthStart, $monthEnd);
             $transactions = array_merge($transactions, $predictedTransactions);
@@ -204,13 +226,14 @@ class StatsService
         $results = [];
 
         $financialCategories = $this->financialCategoryService->getAllAccessibleFinancialCategoriesFlat($rootFinancialCategory);
-        $transactions = $this->transactionRepository->getDebitTransactionsBetweenDates(
-            $bankAccounts,
+        $transactions = $this->transactionRepository->getTransactions(
+            $bankAccounts->toArray(),
             $startDate,
             $endDate,
-            new ArrayCollection($financialCategories),
             null,
-            count($bankAccounts) === 1 ? null : new ArrayCollection([FinancialCategoryTypeEnum::Internal])
+            FinancialCategoryTypeEnum::expenseTypes(),
+            null,
+            0
         );
         $scheduledTransactions = $this->scheduledTransactionRepository->findDebitScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate, $financialCategories);
         $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $startDate, $endDate);
@@ -240,68 +263,43 @@ class StatsService
     public function getAnnualBalanceEvolutionByMonth(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate)
     {
         $results = [];
-
-        $dayBeforeStartDate = (clone $startDate)->modify('-1 day');
         $balance = 0;
+            
+        $firstDayOfCurrentMonth = new DateTime('first day of this month');
+        $firstDayOfCurrentMonth->setTime(0, 0, 0);
+
         foreach ($bankAccounts as $bankAccount) {
-            $balance += $bankAccount->getInitialAmount();
-            $creditBeforeStartDate = $this->transactionRepository->getCreditBetweenDate($bankAccount, null, $dayBeforeStartDate);
-            $debitBeforeStartDate = $this->transactionRepository->getDebitBetweenDate($bankAccount, null, $dayBeforeStartDate);
-            $balance += $creditBeforeStartDate + $debitBeforeStartDate;
+            $balance += $this->bankAccountRepository->getBalanceAtDate($bankAccount, $startDate) ?? 0;
         }
-        $transactions = $this->transactionRepository->getCreditTransactionsBetweenDates(
-            $bankAccounts,
-            $startDate,
-            $endDate,
-            null,
-            null,
-            count($bankAccounts) === 1 ? null : new ArrayCollection([FinancialCategoryTypeEnum::Internal])
-        );
-        $scheduledTransactions = $this->scheduledTransactionRepository->findCreditScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate);
-        $creditByMonth = $this->getValuesByMonth($startDate, $endDate, $transactions, $scheduledTransactions);
-
-        $transactions = $this->transactionRepository->getDebitTransactionsBetweenDates(
-            $bankAccounts,
-            $startDate,
-            $endDate,
-            null,
-            null,
-            count($bankAccounts) === 1 ? null : new ArrayCollection([FinancialCategoryTypeEnum::Internal])
-        );
-        $this->scheduledTransactionRepository->findDebitScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate);
-        $debitByMonth = $this->getValuesByMonth($startDate, $endDate, $transactions, $scheduledTransactions);
-
-        $creditsMapped = array_reduce($creditByMonth, function ($carry, $item) {
-            $carry[$item->month] = $item->amount;
-            return $carry;
-        }, []);
-
-        $debitsMapped = array_reduce($debitByMonth, function ($carry, $item) {
-            $carry[$item->month] = $item->amount;
-            return $carry;
-        }, []);
 
         $period = new \DatePeriod($startDate, new \DateInterval('P1M'), $endDate);
-        $currentPeriod = date('Y-m');
+        $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange(new ArrayCollection([$bankAccount]), $startDate, $endDate);
         foreach ($period as $date) {
             $month = $date->format('Y-m');
             $monthStart = new \DateTime($date->format("Y-m-01"));
             $monthEnd = new \DateTime($date->format("Y-m-t"));
-            if (isset($creditsMapped[$month])) {
-                $balance += $creditsMapped[$month];
+            
+            $transactionValues = $this->transactionRepository->getValue([$bankAccount], $monthStart, $monthEnd, null, null, null, 0) ?? 0;
+
+            $balance = bcadd($balance, $transactionValues, 2);
+
+            $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $monthStart, $monthEnd);
+            
+            foreach ($predictedTransactions as $transaction) {
+                $balance = bcadd($balance, $transaction->getAmount(), 2);
             }
-            if (isset($debitsMapped[$month])) {
-                $balance += $debitsMapped[$month];
+
+            if ($monthEnd >= $firstDayOfCurrentMonth && $monthStart >= $firstDayOfCurrentMonth) {
+                /** @var BudgetSummary[] $budgetSummaries */
+                $budgetSummaries = $this->budgetService->calculateBudgetsSummaries($bankAccount, $monthStart, $monthEnd);
+                /** @var Budget $budget */
+                foreach ($budgetSummaries as $budgetSummary) {
+                    /** @var BudgetSummary $budgetSummary */
+                    if ($budgetSummary->summary > 0) {
+                        $balance = bcsub($balance, $budgetSummary->summary, 2);
+                    }
+                }
             }
-            //if ($date->format('Y-m') >= $currentPeriod) {
-            //    foreach ($bankAccounts as $bankAccount) {
-            //        $budgetsSummarries = $this->budgetService->calculateBudgetSummary($bankAccount, $monthStart, $monthEnd);
-            //        foreach ($budgetsSummarries as $budgetsSummarry) {
-            //            /** @var BudgetSummary $budgetsSummarry */
-             //           $balance -= ($budgetsSummarry->consumed < $budgetsSummarry->budget->getAmount() ? $budgetsSummarry->budget->getAmount() - $budgetsSummarry->consumed : 0);
-            //        }
-            //    }
-            //}
             $results[] = new AnnualValueForMonth($balance, $month);
         }
         return $results;

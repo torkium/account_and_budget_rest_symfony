@@ -35,34 +35,39 @@ class BudgetService
         $this->financialCategoryService = $financialCategoryService;
     }
 
-    public function calculateBudgetSummary(BankAccount $bankAccount, DateTimeInterface $startDate, DateTimeInterface $endDate): array
+    public function calculateBudgetsSummaries(BankAccount $bankAccount, DateTimeInterface $startDate, DateTimeInterface $endDate): array
     {
-        $budgets = $this->budgetRepository->findBudgetsByDateRange($bankAccount, $startDate, $endDate);
+        $budgets = $this->budgetRepository->findBudgetsByDateRange([$bankAccount], $startDate, $endDate);
         /** @var BudgetSummary[] $budgetSummaries */
         $budgetSummaries = [];
 
         foreach ($budgets as $budget) {
-            $budget->setAmount($this->calculateAdjustedAmountForPeriod([$budget], $startDate, $endDate));
-            $summary = new BudgetSummary($budget);
-            $financialCategories = $this->financialCategoryService->getAllAccessibleFinancialCategoriesFlat($budget->getFinancialCategory());
-
-            $realTransactions = $this->transactionRepository->findTransactionsByDateRange($bankAccount, $startDate, $endDate, $financialCategories);
-            $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange(new ArrayCollection([$bankAccount]), $startDate, $endDate, $financialCategories);
-            $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $startDate, $endDate);
-            $allTransactions = array_merge($realTransactions, $predictedTransactions);
-            foreach ($allTransactions as $transaction) {
-                if ($transaction->getId()) {
-                    $summary->consumed = bcadd((string)$transaction->getAmount(), (string) $summary->consumed, 2);
-                }
-                $summary->provisionalConsumed = bcadd((string) $transaction->getAmount(), (string) $summary->provisionalConsumed, 2);
-            }
-            $summary->summary = bcadd((string) $budget->getAmount(), (string) $summary->consumed, 2);
-            $summary->provisionalSummary = bcadd((string) $budget->getAmount(), (string) $summary->provisionalConsumed, 2);
-
-            $budgetSummaries[] = $summary;
+            $budgetSummaries[] = $this->calculateBudgetSummary($budget, $startDate, $endDate);
         }
 
         return $budgetSummaries;
+    }
+
+    public function calculateBudgetSummary(Budget $budget, DateTimeInterface $startDate, DateTimeInterface $endDate): BudgetSummary
+    {
+        $budget->setAmount($this->calculateAdjustedAmountForPeriod([$budget], $startDate, $endDate));
+        $summary = new BudgetSummary($budget);
+        $financialCategories = $this->financialCategoryService->getAllAccessibleFinancialCategoriesFlat($budget->getFinancialCategory());
+
+        $realTransactions = $this->transactionRepository->findTransactionsByDateRange($budget->getBankAccount(), $startDate, $endDate, $financialCategories);
+        $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange(new ArrayCollection([$budget->getBankAccount()]), $startDate, $endDate, $financialCategories);
+        $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $startDate, $endDate);
+        $allTransactions = array_merge($realTransactions, $predictedTransactions);
+        foreach ($allTransactions as $transaction) {
+            if ($transaction->getId()) {
+                $summary->consumed = bcadd($transaction->getAmount(), $summary->consumed, 2);
+            }
+            $summary->provisionalConsumed = bcadd($transaction->getAmount(), $summary->provisionalConsumed, 2);
+        }
+        $summary->summary = bcadd($budget->getAmount(), $summary->consumed, 2);
+        $summary->provisionalSummary = bcadd($budget->getAmount(), $summary->provisionalConsumed, 2);
+
+        return $summary;
     }
 
     /**
@@ -76,12 +81,12 @@ class BudgetService
     public function calculateAdjustedAmountForPeriod(array $budgets, DateTime $startDate, DateTime $endDate): float
     {
         $adjustedAmount = 0;
-        foreach($budgets as $budget){
+        foreach ($budgets as $budget) {
             $frequency = $budget->getFrequency();
             $amount = $budget->getAmount();
-    
+
             $periodCount = $this->calculatePeriodCount($startDate, $endDate, $frequency);
-    
+
             $adjustedAmount = $amount * $periodCount;
         }
 

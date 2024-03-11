@@ -16,7 +16,7 @@ class ScheduledTransactionService
         $this->transactionRepository = $transactionRepository;
     }
 
-    public function generatePredictedTransactions($scheduledTransactions, \DateTime $startDate, \DateTime $endDate)
+    public function generatePredictedTransactions(array $scheduledTransactions, \DateTime $startDate, \DateTime $endDate)
     {
         return array_reduce($scheduledTransactions, function ($acc, ScheduledTransaction $scheduledTransaction) use ($startDate, $endDate) {
             return array_merge($acc, $this->generateTransactionsForPeriod($scheduledTransaction, $startDate, $endDate));

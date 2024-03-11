@@ -101,6 +101,107 @@ class TransactionRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+
+
+    public function getValue(array $bankAccounts, DateTimeInterface | null $startDate = null, DateTimeInterface | null $endDate = null, array | null $financialCategories = null, array | null $financialCategoriesType = null, array | null $financialCategoriesTypeToExclude = null, $amountSign = null)
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->select('SUM(t.amount) as total')
+            ->leftJoin('t.financialCategory', 'fc')
+            ->where('t.bankAccount IN (:bankAccountIds)');
+        if ($startDate) {
+            $qb->andWhere('t.date >= :startDate')
+            ->setParameter('startDate', $startDate->format("Y-m-d"));
+        }
+        if ($endDate) {
+            $qb->andWhere('t.date <= :endDate')
+            ->setParameter('endDate', $endDate->format("Y-m-d"));
+        }
+        if ($amountSign === 1) {
+            $qb->andWhere('t.amount >= 0');
+        }
+        else if ($amountSign === -1) {
+            $qb->andWhere('t.amount < 0');
+        }
+
+        if ($financialCategoriesType) {
+            $qb
+                ->andWhere('fc.type IN (:financialCategoriesTypeIds)')
+                ->setParameter('financialCategoriesTypeIds', array_map(function (FinancialCategoryTypeEnum $categoryType) {
+                    return $categoryType->value;
+                }, $financialCategoriesType));
+        }
+        if ($financialCategories) {
+            $qb
+                ->andWhere('fc.id IN (:financialCategoryIds)')
+                ->setParameter('financialCategoryIds', array_map(function (FinancialCategory $financialCategory) {
+                    return $financialCategory->getId();
+                }, $financialCategories));
+        }
+
+        if ($financialCategoriesTypeToExclude) {
+            $qb->andWhere('fc is NULL OR fc.type NOT IN (:financialCategoriesTypeToExcludeIds)')
+                ->setParameter('financialCategoriesTypeToExcludeIds', array_map(function (FinancialCategoryTypeEnum $categoryType) {
+                    return $categoryType->value;
+                }, $financialCategoriesTypeToExclude));
+        }
+        $qb
+            ->setParameter('bankAccountIds', array_map(function ($account) {
+                return $account->getId();
+            }, $bankAccounts));
+
+        return $qb->getQuery()->getSingleScalarResult();
+    }
+    public function getTransactions(array $bankAccounts, DateTimeInterface | null $startDate = null, DateTimeInterface | null $endDate = null, array | null $financialCategories = null, array | null $financialCategoriesType = null, array | null $financialCategoriesTypeToExclude = null, $amountSign = null)
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->select('t')
+            ->leftJoin('t.financialCategory', 'fc')
+            ->where('t.bankAccount IN (:bankAccountIds)');
+        if ($startDate) {
+            $qb->andWhere('t.date >= :startDate')
+            ->setParameter('startDate', $startDate->format("Y-m-d"));
+        }
+        if ($endDate) {
+            $qb->andWhere('t.date <= :endDate')
+            ->setParameter('endDate', $endDate->format("Y-m-d"));
+        }
+        if ($amountSign === 1) {
+            $qb->andWhere('t.amount >= 0');
+        }
+        else if ($amountSign === -1) {
+            $qb->andWhere('t.amount < 0');
+        }
+
+        if ($financialCategoriesType) {
+            $qb
+                ->andWhere('fc.type IN (:financialCategoriesTypeIds)')
+                ->setParameter('financialCategoriesTypeIds', array_map(function (FinancialCategoryTypeEnum $categoryType) {
+                    return $categoryType->value;
+                }, $financialCategoriesType));
+        }
+        if ($financialCategories) {
+            $qb
+                ->andWhere('fc.id IN (:financialCategoryIds)')
+                ->setParameter('financialCategoryIds', array_map(function (FinancialCategory $financialCategory) {
+                    return $financialCategory->getId();
+                }, $financialCategories));
+        }
+
+        if ($financialCategoriesTypeToExclude) {
+            $qb->andWhere('fc is NULL OR fc.type NOT IN (:financialCategoriesTypeToExcludeIds)')
+                ->setParameter('financialCategoriesTypeToExcludeIds', array_map(function (FinancialCategoryTypeEnum $categoryType) {
+                    return $categoryType->value;
+                }, $financialCategoriesTypeToExclude));
+        }
+        $qb
+            ->setParameter('bankAccountIds', array_map(function ($account) {
+                return $account->getId();
+            }, $bankAccounts));
+
+        return $qb->getQuery()->getResult();
+    }
+
     public function getCreditTransactionsBetweenDates(ArrayCollection $bankAccounts, DateTimeInterface $startDate, DateTimeInterface $endDate, ArrayCollection | null $financialCategories = null, ArrayCollection | null $categoriesType = null, ArrayCollection | null $categoriesTypeToExclude = null)
     {
         $qb = $this->createQueryBuilder('t')
@@ -111,27 +212,27 @@ class TransactionRepository extends ServiceEntityRepository
             ->andWhere('t.date <= :endDate')
             ->andWhere('t.amount >= 0');
 
-            if ($categoriesType) {
-                $qb
-                    ->andWhere('fc.type IN (:categoryTypeIds)')
-                    ->setParameter('categoryTypeIds', $categoriesType->map(function (FinancialCategoryTypeEnum $categoryType) {
-                        return $categoryType->value;
-                    })->toArray());
-            }
-            if ($financialCategories) {
-                $qb
-                    ->andWhere('fc.id IN (:financialCategoryIds)')
-                    ->setParameter('financialCategoryIds', $financialCategories->map(function (FinancialCategory $financialCategory) {
-                        return $financialCategory->getId();
-                    })->toArray());
-            }
-    
-            if ($categoriesTypeToExclude) {
-                $qb->andWhere('fc is NULL OR fc.type NOT IN (:categoryTypeIds)')
-                    ->setParameter('categoryTypeIds', $categoriesTypeToExclude->map(function (FinancialCategoryTypeEnum $categoryType) {
-                        return $categoryType->value;
-                    })->toArray());
-            }
+        if ($categoriesType) {
+            $qb
+                ->andWhere('fc.type IN (:categoryTypeIds)')
+                ->setParameter('categoryTypeIds', $categoriesType->map(function (FinancialCategoryTypeEnum $categoryType) {
+                    return $categoryType->value;
+                })->toArray());
+        }
+        if ($financialCategories) {
+            $qb
+                ->andWhere('fc.id IN (:financialCategoryIds)')
+                ->setParameter('financialCategoryIds', $financialCategories->map(function (FinancialCategory $financialCategory) {
+                    return $financialCategory->getId();
+                })->toArray());
+        }
+
+        if ($categoriesTypeToExclude) {
+            $qb->andWhere('fc is NULL OR fc.type NOT IN (:categoryTypeIds)')
+                ->setParameter('categoryTypeIds', $categoriesTypeToExclude->map(function (FinancialCategoryTypeEnum $categoryType) {
+                    return $categoryType->value;
+                })->toArray());
+        }
         $qb
             ->setParameter('bankAccountIds', $bankAccounts->map(function ($account) {
                 return $account->getId();
@@ -152,27 +253,27 @@ class TransactionRepository extends ServiceEntityRepository
             ->andWhere('t.date <= :endDate')
             ->andWhere('t.amount < 0');
 
-            if ($categoriesType) {
-                $qb
-                    ->andWhere('fc.type IN (:categoryTypeIds)')
-                    ->setParameter('categoryTypeIds', $categoriesType->map(function (FinancialCategoryTypeEnum $categoryType) {
-                        return $categoryType->value;
-                    })->toArray());
-            }
-            if ($financialCategories) {
-                $qb
-                    ->andWhere('fc.id IN (:financialCategoryIds)')
-                    ->setParameter('financialCategoryIds', $financialCategories->map(function (FinancialCategory $financialCategory) {
-                        return $financialCategory->getId();
-                    })->toArray());
-            }
-    
-            if ($categoriesTypeToExclude) {
-                $qb->andWhere('fc is NULL OR fc.type NOT IN (:categoryTypeIds)')
-                    ->setParameter('categoryTypeIds', $categoriesTypeToExclude->map(function (FinancialCategoryTypeEnum $categoryType) {
-                        return $categoryType->value;
-                    })->toArray());
-            }
+        if ($categoriesType) {
+            $qb
+                ->andWhere('fc.type IN (:categoryTypeIds)')
+                ->setParameter('categoryTypeIds', $categoriesType->map(function (FinancialCategoryTypeEnum $categoryType) {
+                    return $categoryType->value;
+                })->toArray());
+        }
+        if ($financialCategories) {
+            $qb
+                ->andWhere('fc.id IN (:financialCategoryIds)')
+                ->setParameter('financialCategoryIds', $financialCategories->map(function (FinancialCategory $financialCategory) {
+                    return $financialCategory->getId();
+                })->toArray());
+        }
+
+        if ($categoriesTypeToExclude) {
+            $qb->andWhere('fc is NULL OR fc.type NOT IN (:categoryTypeIds)')
+                ->setParameter('categoryTypeIds', $categoriesTypeToExclude->map(function (FinancialCategoryTypeEnum $categoryType) {
+                    return $categoryType->value;
+                })->toArray());
+        }
         $qb
             ->setParameter('bankAccountIds', $bankAccounts->map(function ($account) {
                 return $account->getId();
@@ -190,14 +291,14 @@ class TransactionRepository extends ServiceEntityRepository
             ->where('t.bankAccount = :bankAccount')
             ->andWhere('t.amount >= 0')
             ->setParameter('bankAccount', $bankAccount);
-    
+
         if ($startDate) {
             $qb->andWhere('t.date >= :startDate')
-               ->setParameter('startDate', $startDate->format("Y-m-d"));
+                ->setParameter('startDate', $startDate->format("Y-m-d"));
         }
         if ($endDate) {
             $qb->andWhere('t.date <= :endDate')
-               ->setParameter('endDate', $endDate->format("Y-m-d"));
+                ->setParameter('endDate', $endDate->format("Y-m-d"));
         }
         if ($financialCategories) {
             $financialCategoriesIds = array_map(function ($financialCategory) {
@@ -215,14 +316,14 @@ class TransactionRepository extends ServiceEntityRepository
             ->where('t.bankAccount = :bankAccount')
             ->andWhere('t.amount < 0')
             ->setParameter('bankAccount', $bankAccount);
-    
+
         if ($startDate) {
             $qb->andWhere('t.date >= :startDate')
-               ->setParameter('startDate', $startDate->format("Y-m-d"));
+                ->setParameter('startDate', $startDate->format("Y-m-d"));
         }
         if ($endDate) {
             $qb->andWhere('t.date <= :endDate')
-               ->setParameter('endDate', $endDate->format("Y-m-d"));
+                ->setParameter('endDate', $endDate->format("Y-m-d"));
         }
         if ($financialCategories) {
             $financialCategoriesIds = array_map(function ($financialCategory) {
