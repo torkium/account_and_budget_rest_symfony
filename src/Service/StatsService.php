@@ -52,7 +52,7 @@ class StatsService
             null,
             count($bankAccounts) === 1 ? null : new ArrayCollection([FinancialCategoryTypeEnum::Internal])
         );
-        
+
         $scheduledTransactions = $this->scheduledTransactionRepository->findCreditScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate);
         return $this->getValuesByMonth($startDate, $endDate, $transactions, $scheduledTransactions);
     }
@@ -96,7 +96,7 @@ class StatsService
         foreach ($monthlyValue as $month => $amount) {
             $monthStart = new \DateTime($month . "-01");
             $monthEnd = new \DateTime($monthStart->format("Y-m-t"));
-            foreach($budgets as $budget){
+            foreach ($budgets as $budget) {
                 /** @var BudgetSummary $budgetSummary */
                 $budgetSummary = $this->budgetService->calculateBudgetSummary($budget, $monthStart, $monthEnd);
                 if ($budgetSummary->summary > 0) {
@@ -186,7 +186,15 @@ class StatsService
                 0
             );
 
-            $scheduledTransactions = $this->scheduledTransactionRepository->findDebitScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate, $financialCategories);
+            $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactions(
+                $bankAccounts->toArray(),
+                $startDate,
+                $endDate,
+                null,
+                FinancialCategoryTypeEnum::expenseTypes(),
+                null,
+                0
+            );
             $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $monthStart, $monthEnd);
             $transactions = array_merge($transactions, $predictedTransactions);
 
@@ -235,7 +243,15 @@ class StatsService
             null,
             0
         );
-        $scheduledTransactions = $this->scheduledTransactionRepository->findDebitScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate, $financialCategories);
+        $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactions(
+            $bankAccounts->toArray(),
+            $startDate,
+            $endDate,
+            null,
+            FinancialCategoryTypeEnum::expenseTypes(),
+            null,
+            0
+        );
         $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $startDate, $endDate);
         $transactions = array_merge($transactions, $predictedTransactions);
 
@@ -264,7 +280,7 @@ class StatsService
     {
         $results = [];
         $balance = 0;
-            
+
         $firstDayOfCurrentMonth = new DateTime('first day of this month');
         $firstDayOfCurrentMonth->setTime(0, 0, 0);
 
@@ -278,13 +294,13 @@ class StatsService
             $month = $date->format('Y-m');
             $monthStart = new \DateTime($date->format("Y-m-01"));
             $monthEnd = new \DateTime($date->format("Y-m-t"));
-            
+
             $transactionValues = $this->transactionRepository->getValue([$bankAccount], $monthStart, $monthEnd, null, null, null, 0) ?? 0;
 
             $balance = bcadd($balance, $transactionValues, 2);
 
             $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $monthStart, $monthEnd);
-            
+
             foreach ($predictedTransactions as $transaction) {
                 $balance = bcadd($balance, $transaction->getAmount(), 2);
             }
