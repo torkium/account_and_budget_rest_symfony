@@ -289,9 +289,11 @@ class StatsService
         }
 
         $period = new \DatePeriod($startDate, new \DateInterval('P1M'), $endDate);
-        $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange(new ArrayCollection([$bankAccount]), $startDate, $endDate);
+        $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate);
+
         foreach ($period as $date) {
             $month = $date->format('Y-m');
+
             $monthStart = new \DateTime($date->format("Y-m-01"));
             $monthEnd = new \DateTime($date->format("Y-m-t"));
 
@@ -301,18 +303,21 @@ class StatsService
 
             $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $monthStart, $monthEnd);
 
+
             foreach ($predictedTransactions as $transaction) {
                 $balance = bcadd($balance, $transaction->getAmount(), 2);
             }
 
             if ($monthEnd >= $firstDayOfCurrentMonth && $monthStart >= $firstDayOfCurrentMonth) {
-                /** @var BudgetSummary[] $budgetSummaries */
-                $budgetSummaries = $this->budgetService->calculateBudgetsSummaries($bankAccount, $monthStart, $monthEnd);
-                /** @var Budget $budget */
-                foreach ($budgetSummaries as $budgetSummary) {
-                    /** @var BudgetSummary $budgetSummary */
-                    if ($budgetSummary->summary > 0) {
-                        $balance = bcsub($balance, $budgetSummary->summary, 2);
+
+                foreach ($bankAccounts as $bankAccount) {
+                    /** @var BudgetSummary[] $budgetSummaries */
+                    $budgetSummaries = $this->budgetService->calculateBudgetsSummaries($bankAccount, $monthStart, $monthEnd);
+                    foreach ($budgetSummaries as $budgetSummary) {
+                        /** @var BudgetSummary $budgetSummary */
+                        if ($budgetSummary->summary > 0) {
+                            $balance = bcsub($balance, $budgetSummary->summary, 2);
+                        }
                     }
                 }
             }

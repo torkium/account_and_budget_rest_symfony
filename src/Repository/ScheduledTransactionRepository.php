@@ -28,11 +28,12 @@ class ScheduledTransactionRepository extends ServiceEntityRepository
     public function findScheduledTransactionsByDateRange(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate, array $financialCategories = null)
     {
         $qb = $this->createQueryBuilder('st')
-            ->andWhere('st.bankAccount IN (:bankAccountIds)')
+        ->andWhere('st.bankAccount IN (:bankAccountIds)')
+        ->andWhere('1=1')
             ->andWhere('(
-                (st.startDate <= :startDate AND (st.endDate Is NULL OR st.endDate >= :startDate))
+                (st.startDate <= :startDate AND (st.endDate is NULL OR st.endDate >= :startDate))
                 OR
-                (st.startDate >= :startDate AND (st.endDate Is NULL OR st.startDate <= :endDate))
+                (st.startDate >= :startDate AND (st.endDate is NULL OR st.startDate <= :endDate))
             )');
         if ($financialCategories) {
             $financialCategoriesIds = array_map(function ($financialCategory) {
