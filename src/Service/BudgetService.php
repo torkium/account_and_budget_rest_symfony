@@ -35,9 +35,9 @@ class BudgetService
         $this->financialCategoryService = $financialCategoryService;
     }
 
-    public function calculateBudgetsSummaries(BankAccount $bankAccount, DateTimeInterface $startDate, DateTimeInterface $endDate): array
+    public function calculateBudgetsSummaries(BankAccount $bankAccount, DateTimeInterface $startDate, DateTimeInterface $endDate, array | null $financialCategories = null, array | null $financialCategoriesType = null, array | null $financialCategoriesTypeToExclude = null, $amountSign = null): array
     {
-        $budgets = $this->budgetRepository->findBudgetsByDateRange([$bankAccount], $startDate, $endDate);
+        $budgets = $this->budgetRepository->findBudgetsByDateRange([$bankAccount], $startDate, $endDate, $financialCategories, $financialCategoriesType, $financialCategoriesTypeToExclude, $amountSign);
         /** @var BudgetSummary[] $budgetSummaries */
         $budgetSummaries = [];
 

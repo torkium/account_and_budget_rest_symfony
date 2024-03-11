@@ -172,6 +172,8 @@ class StatsService
 
         $period = new \DatePeriod($startDate, new \DateInterval('P1M'), $endDate);
         $financialCategories = $this->financialCategoryService->getAllAccessibleFinancialCategoriesFlat($rootFinancialCategory);
+        $firstDayOfCurrentMonth = new DateTime('first day of this month');
+        $firstDayOfCurrentMonth->setTime(0, 0, 0);
         foreach ($period as $date) {
             $monthStart = new \DateTime($date->format("Y-m-01"));
             $monthEnd = new \DateTime($date->format("Y-m-t"));
@@ -180,7 +182,7 @@ class StatsService
                 $bankAccounts->toArray(),
                 $monthStart,
                 $monthEnd,
-                null,
+                $financialCategories,
                 FinancialCategoryTypeEnum::expenseTypes(),
                 null,
                 0
@@ -190,7 +192,7 @@ class StatsService
                 $bankAccounts->toArray(),
                 $startDate,
                 $endDate,
-                null,
+                $financialCategories,
                 FinancialCategoryTypeEnum::expenseTypes(),
                 null,
                 0
@@ -211,6 +213,36 @@ class StatsService
             }
 
             $dataEntries = [];
+            if ($endDate > $firstDayOfCurrentMonth) {
+                if($startDate < $firstDayOfCurrentMonth){
+                    $startDate = $firstDayOfCurrentMonth;
+                }
+                foreach ($bankAccounts as $bankAccount) {
+                    /** @var BudgetSummary[] $budgetSummaries */
+                    $budgetSummaries = $this->budgetService->calculateBudgetsSummaries(
+                        $bankAccount,
+                        $monthStart,
+                        $monthEnd,
+                        $financialCategories,
+                        FinancialCategoryTypeEnum::expenseTypes(),
+                        null,
+                        0
+                    );
+                    foreach ($budgetSummaries as $budgetSummary) {
+                        /** @var BudgetSummary $budgetSummary */
+                        if ($budgetSummary->summary > 0) {
+                            $category = $budgetSummary->budget->getFinancialCategory();
+                            $rootCategory = $category ? $budgetSummary->budget->getFinancialCategory()->getRootParent($rootFinancialCategory) : null;
+                            $categoryLabel = $rootCategory ? $rootCategory->getLabel() : null;
+                            $categoryLabel = $categoryLabel ? $categoryLabel : $category->getLabel();
+                            if (!isset($dataByCategory[$categoryLabel])) {
+                                $monthlyData[$categoryLabel] = 0;
+                            }
+                            $monthlyData[$categoryLabel] = bcsub($monthlyData[$categoryLabel], $budgetSummary->summary, 2);
+                        }
+                    }
+                }
+            }
             foreach ($monthlyData as $category => $amount) {
                 $dataEntries[] = [
                     'category' => $category,
@@ -238,7 +270,7 @@ class StatsService
             $bankAccounts->toArray(),
             $startDate,
             $endDate,
-            null,
+            $financialCategories,
             FinancialCategoryTypeEnum::expenseTypes(),
             null,
             0
@@ -247,7 +279,7 @@ class StatsService
             $bankAccounts->toArray(),
             $startDate,
             $endDate,
-            null,
+            $financialCategories,
             FinancialCategoryTypeEnum::expenseTypes(),
             null,
             0
@@ -266,6 +298,37 @@ class StatsService
             $dataByCategory[$categoryLabel] = bcadd($dataByCategory[$categoryLabel], $transaction->getAmount(), 2);
         }
 
+        $firstDayOfCurrentMonth = new DateTime('first day of this month');
+        $firstDayOfCurrentMonth->setTime(0, 0, 0);
+        if ($endDate > $firstDayOfCurrentMonth) {
+            if($startDate < $firstDayOfCurrentMonth){
+                $startDate = $firstDayOfCurrentMonth;
+            }
+            foreach ($bankAccounts as $bankAccount) {
+                /** @var BudgetSummary[] $budgetSummaries */
+                $budgetSummaries = $this->budgetService->calculateBudgetsSummaries(
+                    $bankAccount,
+                    $startDate,
+                    $endDate,
+                    $financialCategories,
+                    FinancialCategoryTypeEnum::expenseTypes(),
+                    null,
+                    0
+                );
+                foreach ($budgetSummaries as $budgetSummary) {
+                    /** @var BudgetSummary $budgetSummary */
+                    if ($budgetSummary->summary > 0) {
+                        $category = $budgetSummary->budget->getFinancialCategory();
+                        $rootCategory = $category ? $budgetSummary->budget->getFinancialCategory()->getRootParent($rootFinancialCategory) : null;
+                        $categoryLabel = $rootCategory ? $rootCategory->getLabel() : ($category ? $category->getLabel() : null);
+                        if (!isset($dataByCategory[$categoryLabel])) {
+                            $dataByCategory[$categoryLabel] = 0;
+                        }
+                        $dataByCategory[$categoryLabel] = bcsub($dataByCategory[$categoryLabel], $budgetSummary->summary, 2);
+                    }
+                }
+            }
+        }
         foreach ($dataByCategory as $category => $amount) {
             $results[] = [
                 'category' => $category,
