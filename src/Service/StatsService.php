@@ -214,7 +214,7 @@ class StatsService
 
             $dataEntries = [];
             if ($endDate > $firstDayOfCurrentMonth) {
-                if($startDate < $firstDayOfCurrentMonth){
+                if ($startDate < $firstDayOfCurrentMonth) {
                     $startDate = $firstDayOfCurrentMonth;
                 }
                 foreach ($bankAccounts as $bankAccount) {
@@ -301,7 +301,7 @@ class StatsService
         $firstDayOfCurrentMonth = new DateTime('first day of this month');
         $firstDayOfCurrentMonth->setTime(0, 0, 0);
         if ($endDate > $firstDayOfCurrentMonth) {
-            if($startDate < $firstDayOfCurrentMonth){
+            if ($startDate < $firstDayOfCurrentMonth) {
                 $startDate = $firstDayOfCurrentMonth;
             }
             foreach ($bankAccounts as $bankAccount) {
@@ -360,7 +360,15 @@ class StatsService
             $monthStart = new \DateTime($date->format("Y-m-01"));
             $monthEnd = new \DateTime($date->format("Y-m-t"));
 
-            $transactionValues = $this->transactionRepository->getValue([$bankAccount], $monthStart, $monthEnd, null, null, null, 0) ?? 0;
+            $transactionValues = $this->transactionRepository->getValue(
+                [$bankAccount],
+                $monthStart,
+                $monthEnd,
+                null,
+                null,
+                count($bankAccounts) === 1 ? null : [FinancialCategoryTypeEnum::Internal],
+                0
+            ) ?? 0;
 
             $balance = bcadd($balance, $transactionValues, 2);
 
@@ -375,7 +383,14 @@ class StatsService
 
                 foreach ($bankAccounts as $bankAccount) {
                     /** @var BudgetSummary[] $budgetSummaries */
-                    $budgetSummaries = $this->budgetService->calculateBudgetsSummaries($bankAccount, $monthStart, $monthEnd);
+                    $budgetSummaries = $this->budgetService->calculateBudgetsSummaries(
+                        $bankAccount,
+                        $monthStart,
+                        $monthEnd,
+                        null,
+                        null,
+                        count($bankAccounts) === 1 ? null : [FinancialCategoryTypeEnum::Internal],
+                    );
                     foreach ($budgetSummaries as $budgetSummary) {
                         /** @var BudgetSummary $budgetSummary */
                         if ($budgetSummary->summary > 0) {

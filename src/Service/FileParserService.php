@@ -128,7 +128,7 @@ class FileParserService
     {
         $lineNumber = 0;
         foreach ($datas as $line) {
-            if ($this->isDataLine($line)) {
+            if ($this->isDataLine($line) && $lineNumber !== 0) {
                 return $lineNumber;
             }
             $lineNumber++;
