@@ -111,7 +111,6 @@ class ScheduledTransactionRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('st')
             ->leftJoin('st.financialCategory', 'fc')
             ->andWhere('st.bankAccount IN (:bankAccountIds)')
-            ->andWhere('st.amount < 0')
             ->andWhere('(
                 (st.startDate <= :startDate AND (st.endDate Is NULL OR st.endDate >= :startDate))
                 OR

@@ -53,7 +53,15 @@ class StatsService
             count($bankAccounts) === 1 ? null : new ArrayCollection([FinancialCategoryTypeEnum::Internal])
         );
 
-        $scheduledTransactions = $this->scheduledTransactionRepository->findCreditScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate);
+        $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactions(
+            $bankAccounts->toArray(),
+            $startDate,
+            $endDate,
+            null,
+            null,
+            count($bankAccounts) === 1 ? null : [FinancialCategoryTypeEnum::Internal],
+            1
+        );
         return $this->getValuesByMonth($startDate, $endDate, $transactions, $scheduledTransactions);
     }
 
@@ -69,7 +77,15 @@ class StatsService
         );
 
         $budgets = $this->budgetRepository->findBudgetsByDateRange($bankAccounts->toArray(), $startDate, $endDate);
-        $scheduledTransactions = $this->scheduledTransactionRepository->findDebitScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate);
+        $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactions(
+            $bankAccounts->toArray(),
+            $startDate,
+            $endDate,
+            null,
+            null,
+            count($bankAccounts) === 1 ? null : [FinancialCategoryTypeEnum::Internal],
+            -1
+        );
         return $this->getValuesByMonth($startDate, $endDate, $transactions, $scheduledTransactions, $budgets);
     }
 
@@ -90,7 +106,7 @@ class StatsService
                 $monthlyValue[$month] = 0;
             }
 
-            $monthlyValue[$month] += $transaction->getAmount();
+            $monthlyValue[$month] = bcadd($monthlyValue[$month], $transaction->getAmount(), 2);
         }
 
         foreach ($monthlyValue as $month => $amount) {
@@ -144,7 +160,7 @@ class StatsService
                 if (!isset($monthlyData[$categoryLabel])) {
                     $monthlyData[$categoryLabel] = 0;
                 }
-                $monthlyData[$categoryLabel] += $transaction->getAmount();
+                $monthlyData[$categoryLabel] = bcadd($monthlyData[$categoryLabel], $transaction->getAmount(), 2);
             }
 
             $dataEntries = [];
@@ -352,7 +368,15 @@ class StatsService
         }
 
         $period = new \DatePeriod($startDate, new \DateInterval('P1M'), $endDate);
-        $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange($bankAccounts, $startDate, $endDate);
+        $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactions(
+            $bankAccounts->toArray(),
+            $startDate,
+            $endDate,
+            null,
+            null,
+            count($bankAccounts) === 1 ? null : [FinancialCategoryTypeEnum::Internal],
+            0
+        );
 
         foreach ($period as $date) {
             $month = $date->format('Y-m');
