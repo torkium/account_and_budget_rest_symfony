@@ -57,9 +57,9 @@ class TransactionController extends AbstractController
             if ($a->getId() === null && $b->getId() !== null) return -1;
             if ($b->getId() === null && $a->getId() !== null) return 1;
             if ($a->getId() === $b->getId()) {
-                return $a->getDate() <=> $b->getDate();
+                return $b->getDate() <=> $a->getDate();
             }
-            return $a->getId() <=> $b->getId();
+            return $b->getDate() <=> $a->getDate();
         });
 
         return $this->json($allTransactions, Response::HTTP_OK, [], ['groups' => ['transaction_get', 'financial_category_get', 'financial_category_get_parent', 'scheduled_transaction_get']]);

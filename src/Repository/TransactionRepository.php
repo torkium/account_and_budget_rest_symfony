@@ -48,7 +48,7 @@ class TransactionRepository extends ServiceEntityRepository
             $qb->andWhere('t.scheduledTransaction = :scheduledTransaction')
                 ->setParameter('scheduledTransaction', $scheduledTransaction);
         }
-        return $qb->orderBy('t.date', 'ASC')->getQuery()->getResult();
+        return $qb->orderBy('t.date', 'DESC')->getQuery()->getResult();
     }
 
     /**
@@ -96,7 +96,7 @@ class TransactionRepository extends ServiceEntityRepository
             ->setParameter('bankAccountIds', $bankAccounts->map(function ($account) {
                 return $account->getId();
             })->toArray())
-            ->orderBy('t.date', 'ASC');
+            ->orderBy('t.date', 'DESC');
 
         return $qb->getQuery()->getResult();
     }
@@ -199,7 +199,7 @@ class TransactionRepository extends ServiceEntityRepository
                 return $account->getId();
             }, $bankAccounts));
 
-        return $qb->getQuery()->getResult();
+        return $qb->orderBy('t.date', 'DESC')->getQuery()->getResult();
     }
 
     public function getCreditTransactionsBetweenDates(ArrayCollection $bankAccounts, DateTimeInterface $startDate, DateTimeInterface $endDate, ArrayCollection | null $financialCategories = null, ArrayCollection | null $categoriesType = null, ArrayCollection | null $categoriesTypeToExclude = null)
@@ -240,7 +240,7 @@ class TransactionRepository extends ServiceEntityRepository
             ->setParameter('startDate', $startDate->format("Y-m-d"))
             ->setParameter('endDate', $endDate->format("Y-m-d"));
 
-        return $qb->getQuery()->getResult();
+        return $qb->orderBy('t.date', 'DESC')->getQuery()->getResult();
     }
 
     public function getDebitTransactionsBetweenDates(ArrayCollection $bankAccounts, DateTimeInterface $startDate, DateTimeInterface $endDate, ArrayCollection | null $financialCategories = null, ArrayCollection | null $categoriesType = null, ArrayCollection | null $categoriesTypeToExclude = null)
@@ -281,7 +281,7 @@ class TransactionRepository extends ServiceEntityRepository
             ->setParameter('startDate', $startDate->format("Y-m-d"))
             ->setParameter('endDate', $endDate->format("Y-m-d"));
 
-        return $qb->getQuery()->getResult();
+        return $qb->orderBy('t.date', 'DESC')->getQuery()->getResult();
     }
 
     public function getCreditBetweenDate(BankAccount $bankAccount, ?\DateTime $startDate, ?\DateTime $endDate, array $financialCategories = null)

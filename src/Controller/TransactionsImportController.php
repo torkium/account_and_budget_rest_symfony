@@ -73,8 +73,8 @@ class TransactionsImportController extends AbstractController
             return $transaction->getReference();
         }, $transactions);
 
-        $parsedDatas['datas'] = array_filter($parsedDatas['datas'], function ($data) use ($references_matched) {
-            return !in_array($data['reference'], $references_matched);
+        $parsedDatas['datas'] = array_filter($parsedDatas['datas'], function ($data) use ($references_matched, $headers) {
+            return !in_array($data['reference'], $references_matched) && $data[$headers['headers_date']] !== null;
         });
 
         $transformedDatas = array_map(function ($data) use ($headers) {

@@ -50,7 +50,7 @@ class StatsService
             $endDate,
             null,
             null,
-            count($bankAccounts) === 1 ? null : new ArrayCollection([FinancialCategoryTypeEnum::Internal])
+            count($bankAccounts) === 1 ? null : new ArrayCollection([FinancialCategoryTypeEnum::Internal, FinancialCategoryTypeEnum::Savings])
         );
 
         $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactions(
@@ -59,7 +59,7 @@ class StatsService
             $endDate,
             null,
             null,
-            count($bankAccounts) === 1 ? null : [FinancialCategoryTypeEnum::Internal],
+            count($bankAccounts) === 1 ? null : [FinancialCategoryTypeEnum::Internal, FinancialCategoryTypeEnum::Savings],
             1
         );
         return $this->getValuesByMonth($startDate, $endDate, $transactions, $scheduledTransactions);
@@ -73,7 +73,7 @@ class StatsService
             $endDate,
             null,
             null,
-            count($bankAccounts) === 1 ? null : new ArrayCollection([FinancialCategoryTypeEnum::Internal])
+            count($bankAccounts) === 1 ? null : new ArrayCollection([FinancialCategoryTypeEnum::Internal, FinancialCategoryTypeEnum::Savings])
         );
 
         $budgets = $this->budgetRepository->findBudgetsByDateRange($bankAccounts->toArray(), $startDate, $endDate);
@@ -83,7 +83,7 @@ class StatsService
             $endDate,
             null,
             null,
-            count($bankAccounts) === 1 ? null : [FinancialCategoryTypeEnum::Internal],
+            count($bankAccounts) === 1 ? null : [FinancialCategoryTypeEnum::Internal, FinancialCategoryTypeEnum::Savings],
             -1
         );
         return $this->getValuesByMonth($startDate, $endDate, $transactions, $scheduledTransactions, $budgets);
@@ -366,7 +366,6 @@ class StatsService
         foreach ($bankAccounts as $bankAccount) {
             $balance += $this->bankAccountRepository->getBalanceAtDate($bankAccount, $startDate) ?? 0;
         }
-
         $period = new \DatePeriod($startDate, new \DateInterval('P1M'), $endDate);
         $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactions(
             $bankAccounts->toArray(),
@@ -374,7 +373,7 @@ class StatsService
             $endDate,
             null,
             null,
-            count($bankAccounts) === 1 ? null : [FinancialCategoryTypeEnum::Internal],
+            null,
             0
         );
 
@@ -385,12 +384,12 @@ class StatsService
             $monthEnd = new \DateTime($date->format("Y-m-t"));
 
             $transactionValues = $this->transactionRepository->getValue(
-                [$bankAccount],
+                $bankAccounts->toArray(),
                 $monthStart,
                 $monthEnd,
                 null,
                 null,
-                count($bankAccounts) === 1 ? null : [FinancialCategoryTypeEnum::Internal],
+                null,
                 0
             ) ?? 0;
 
@@ -413,7 +412,7 @@ class StatsService
                         $monthEnd,
                         null,
                         null,
-                        count($bankAccounts) === 1 ? null : [FinancialCategoryTypeEnum::Internal],
+                        null,
                     );
                     foreach ($budgetSummaries as $budgetSummary) {
                         /** @var BudgetSummary $budgetSummary */
