@@ -52,6 +52,9 @@ class BankAccountService
         $realExpenses += $this->transactionRepository->getValue([$bankAccount], $startDate, $endDate, null, [FinancialCategoryTypeEnum::Undefined], null, -1) ?? 0;
         $summary->setRealExpenses($realExpenses);
 
+        $firstDayOfCurrentMonth = new DateTime('first day of this month');
+        $firstDayOfCurrentMonth->setTime(0, 0, 0);
+
         $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange(new ArrayCollection([$bankAccount]), $startDate, $endDate);
         $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $startDate, $endDate);
 
@@ -67,8 +70,6 @@ class BankAccountService
             }
         }
 
-        $firstDayOfCurrentMonth = new DateTime('first day of this month');
-        $firstDayOfCurrentMonth->setTime(0, 0, 0);
         if ($endDate >= $firstDayOfCurrentMonth && $startDate >= $firstDayOfCurrentMonth) {
             /** @var BudgetSummary[] $budgetSummaries */
             $budgetSummaries = $this->budgetService->calculateBudgetsSummaries($bankAccount, $startDate, $endDate);
@@ -80,6 +81,33 @@ class BankAccountService
                 }
             }
         }
+        
+        if($startDate > $firstDayOfCurrentMonth){
+            $provisionalStartBalanceEndDate = (new DateTime())->setTimestamp($startDate->getTimestamp());
+            $provisionalStartBalanceEndDate->modify('-1 day')->setTime(23, 59, 59);
+            $provisionnalTransactionsBeforeDate = 0;
+            $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange(new ArrayCollection([$bankAccount]), $firstDayOfCurrentMonth, $provisionalStartBalanceEndDate);
+            $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $firstDayOfCurrentMonth, $provisionalStartBalanceEndDate);
+            /** @var Transaction $transaction */
+            foreach ($predictedTransactions as $transaction) {
+                $provisionnalTransactionsBeforeDate = bcadd($provisionnalTransactionsBeforeDate, $transaction->getAmount(), 2);
+            }
+            
+            /** @var BudgetSummary[] $budgetSummaries */
+            $budgetSummaries = $this->budgetService->calculateBudgetsSummaries($bankAccount, $firstDayOfCurrentMonth, $provisionalStartBalanceEndDate);
+            /** @var Budget $budget */
+            foreach ($budgetSummaries as $budgetSummary) {
+                /** @var BudgetSummary $budgetSummary */
+                if ($budgetSummary->summary > 0) {
+                    $provisionnalTransactionsBeforeDate = bcsub($provisionnalTransactionsBeforeDate, $budgetSummary->summary, 2);
+                }
+            }
+            $summary->setProvisionalStartBalance(bcadd($summary->getStartBalance(), $provisionnalTransactionsBeforeDate, 2));
+        }
+        else{
+            $summary->setProvisionalStartBalance($summary->getStartBalance());
+        }
+
         return $summary;
     }
 

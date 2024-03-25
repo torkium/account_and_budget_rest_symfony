@@ -22,6 +22,8 @@ class BankAccountSummary
     #[Groups(["bank_account_summary_get"])]
     public float $startBalance = 0.0;
     #[Groups(["bank_account_summary_get"])]
+    public float $provisionalStartBalance = 0.0;
+    #[Groups(["bank_account_summary_get"])]
     public float $endBalance = 0.0;
     #[Groups(["bank_account_summary_get"])]
     public float $provisionalEndBalance = 0.0;
@@ -171,6 +173,27 @@ class BankAccountSummary
     }
 
     /**
+     * Get the value of startBalance
+     */ 
+    public function getProvisionalStartBalance()
+    {
+        return $this->provisionalStartBalance;
+    }
+
+    /**
+     * Set the value of startBalance
+     *
+     * @return  self
+     */ 
+    public function setProvisionalStartBalance($provisionalStartBalance)
+    {
+        $this->provisionalStartBalance = $provisionalStartBalance;
+        $this->calculate();
+
+        return $this;
+    }
+
+    /**
      * Get the value of endBalance
      */ 
     public function getEndBalance()
@@ -203,6 +226,6 @@ class BankAccountSummary
         $this->summary = bcadd($this->credit, $this->debit, 2);
         $this->provisionalSummary =  bcadd($this->provisionalCredit, $this->provisionalDebit, 2);
         $this->endBalance =  bcadd($this->startBalance, $this->summary, 2);
-        $this->provisionalEndBalance =  bcadd($this->startBalance, $this->provisionalSummary, 2);
+        $this->provisionalEndBalance =  bcadd($this->provisionalStartBalance, $this->provisionalSummary, 2);
     }
 }
