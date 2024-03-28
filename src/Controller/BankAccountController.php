@@ -12,6 +12,7 @@ use App\Entity\UserBankAccount;
 use App\Enum\PermissionEnum;
 use App\Repository\BankAccountRepository;
 use App\Repository\BankRepository;
+use App\Repository\ProfileRepository;
 use App\Service\BankAccountService;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,16 +23,25 @@ class BankAccountController extends AbstractController
 {
 
     #[Route('/', name: 'app_api_bank_account_index', methods: 'GET')]
-    public function index(Request $request, BankRepository $bankRepository)
+    public function index(Request $request, BankRepository $bankRepository, ProfileRepository $profileRepository)
     {
         $bankId = $request->query->get('bank_id');
+        $profileFilter = $request->query->get('profile_id');
         $bank = $bankId ? $bankRepository->findOneBy(['id' => $bankId]) : null;
+        $profile = $profileFilter ? $profileRepository->findOneBy(['id' => $profileFilter]) : null;
         if($bank){
             $this->denyAccessUnlessGranted('VIEW', $bank);
         }
         /** @var User $user */
         $user = $this->getUser();
         $bankAccounts = $user->getBankAccounts($bank);
+        if($profile){
+            $this->denyAccessUnlessGranted('VIEW', $profile);
+            $bankAccounts = $bankAccounts->filter(function (BankAccount $bankAccount) use ($profile) {
+                return $bankAccount->hasProfileAccess($profile, PermissionEnum::READER);
+            });
+            $bankAccounts = $bankAccounts->getValues();
+        }
         return $this->json($bankAccounts, 200, [], ['groups' => ['bank_account_get', 'user_bank_account_get', 'bank_get', 'user_get_join']]);
     }
 

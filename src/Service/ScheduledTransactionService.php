@@ -23,6 +23,12 @@ class ScheduledTransactionService
         }, []);
     }
 
+    public function generatePredictedTransactionsUntilDate(array $scheduledTransactions, \DateTime $endDate): array
+    {
+        $startDate = new \DateTime('@0');
+
+        return $this->generatePredictedTransactions($scheduledTransactions, $startDate, $endDate);
+    }
     /**
      * Generates Transaction instances from a ScheduledTransaction for a given period.
      *

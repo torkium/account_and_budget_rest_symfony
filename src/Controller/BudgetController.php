@@ -107,7 +107,7 @@ class BudgetController extends AbstractController
     }
 
     #[Route('/overview', name: 'app_api_budget_overview', methods: 'GET')]
-    public function overview(Request $request, BankAccount $bankAccount, BudgetService $budgetService): JsonResponse
+    public function overview(Request $request, BankAccount $bankAccount, BudgetService $budgetService, EntityManagerInterface $entityManager): JsonResponse
     {
         $this->denyAccessUnlessGranted('VIEW', $bankAccount);
     
@@ -120,6 +120,7 @@ class BudgetController extends AbstractController
             return $this->json(['error' => 'start_date and end_date required.'], Response::HTTP_BAD_REQUEST);
         }
     
+        $entityManager->clear();
         $budgetSummaries = $budgetService->calculateBudgetsSummaries($bankAccount, $startDate, $endDate);
     
         return $this->json($budgetSummaries, Response::HTTP_OK, [], ['groups' => ['budget_get', 'financial_category_get', 'financial_category_get_children', 'budget_summary_get']]);

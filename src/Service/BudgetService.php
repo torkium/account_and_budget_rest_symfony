@@ -12,6 +12,7 @@ use App\Repository\ScheduledTransactionRepository;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManagerInterface;
 
 class BudgetService
 {
@@ -20,19 +21,22 @@ class BudgetService
     private ScheduledTransactionRepository $scheduledTransactionRepository;
     private ScheduledTransactionService $scheduledTransactionService;
     private FinancialCategoryService $financialCategoryService;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(
         BudgetRepository $budgetRepository,
         TransactionRepository $transactionRepository,
         ScheduledTransactionRepository $scheduledTransactionRepository,
         ScheduledTransactionService $scheduledTransactionService,
-        FinancialCategoryService $financialCategoryService
+        FinancialCategoryService $financialCategoryService,
+        EntityManagerInterface $entityManager
     ) {
         $this->budgetRepository = $budgetRepository;
         $this->transactionRepository = $transactionRepository;
         $this->scheduledTransactionRepository = $scheduledTransactionRepository;
         $this->scheduledTransactionService = $scheduledTransactionService;
         $this->financialCategoryService = $financialCategoryService;
+        $this->entityManager = $entityManager;
     }
 
     public function calculateBudgetsSummaries(BankAccount $bankAccount, DateTimeInterface $startDate, DateTimeInterface $endDate, array | null $financialCategories = null, array | null $financialCategoriesType = null, array | null $financialCategoriesTypeToExclude = null, $amountSign = null): array
@@ -42,6 +46,7 @@ class BudgetService
         $budgetSummaries = [];
 
         foreach ($budgets as $budget) {
+            $this->entityManager->clear();
             $budgetSummaries[] = $this->calculateBudgetSummary($budget, $startDate, $endDate);
         }
 

@@ -20,9 +20,9 @@ class Budget
     #[Groups(["budget_get"])]
     private ?string $label = null;
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    #[ORM\Column(type: 'decimal', scale: 2)]
     #[Groups(["budget_get"])]
-    private ?float $amount = null;
+    private float $amount;
 
     #[ORM\Column(type: 'date')]
     #[Groups(["budget_get"])]
@@ -62,15 +62,16 @@ class Budget
         $this->label = $label;
         return $this;
     }
-
-    public function getAmount(): ?float
+    
+    public function getAmount(): float
     {
         return $this->amount;
     }
 
-    public function setAmount(?float $amount): self
+    public function setAmount(float $amount): self
     {
         $this->amount = $amount;
+
         return $this;
     }
 

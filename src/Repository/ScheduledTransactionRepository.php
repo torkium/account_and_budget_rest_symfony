@@ -25,16 +25,25 @@ class ScheduledTransactionRepository extends ServiceEntityRepository
         parent::__construct($registry, ScheduledTransaction::class);
     }
 
-    public function findScheduledTransactionsByDateRange(ArrayCollection $bankAccounts, \DateTime $startDate, \DateTime $endDate, array $financialCategories = null)
+    public function findScheduledTransactionsByDateRange(ArrayCollection $bankAccounts, \DateTime | null $startDate = null, \DateTime | null $endDate = null, array $financialCategories = null)
     {
         $qb = $this->createQueryBuilder('st')
-        ->andWhere('st.bankAccount IN (:bankAccountIds)')
-        ->andWhere('1=1')
-            ->andWhere('(
+        ->where('st.bankAccount IN (:bankAccountIds)');
+        if($startDate && $endDate){
+            $qb->andWhere('(
                 (st.startDate <= :startDate AND (st.endDate is NULL OR st.endDate >= :startDate))
                 OR
                 (st.startDate >= :startDate AND (st.endDate is NULL OR st.startDate <= :endDate))
-            )');
+            )')
+            ->setParameter('startDate', $startDate->format("Y-m-d"))
+            ->setParameter('endDate', $endDate->format("Y-m-d"));
+        }
+        elseif($startDate === null && $endDate){
+            $qb->andWhere('(
+                (st.startDate <= :endDate)
+            )')
+            ->setParameter('endDate', $endDate->format("Y-m-d"));
+        }
         if ($financialCategories) {
             $financialCategoriesIds = array_map(function ($financialCategory) {
                 return $financialCategory->getId();
@@ -46,8 +55,6 @@ class ScheduledTransactionRepository extends ServiceEntityRepository
         return $qb->setParameter('bankAccountIds', $bankAccounts->map(function ($account) {
             return $account->getId();
         })->toArray())
-            ->setParameter('startDate', $startDate->format("Y-m-d"))
-            ->setParameter('endDate', $endDate->format("Y-m-d"))
             ->getQuery()
             ->getResult();
     }

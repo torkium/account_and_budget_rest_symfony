@@ -16,6 +16,8 @@ use App\Repository\ScheduledTransactionRepository;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 
 class BankAccountService
 {
@@ -25,6 +27,7 @@ class BankAccountService
     private ScheduledTransactionRepository $scheduledTransactionRepository;
     private ScheduledTransactionService $scheduledTransactionService;
     private BudgetService $budgetService;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(
         BankAccountRepository $bankAccountRepository,
@@ -33,6 +36,7 @@ class BankAccountService
         ScheduledTransactionRepository $scheduledTransactionRepository,
         ScheduledTransactionService $scheduledTransactionService,
         BudgetService $budgetService,
+        EntityManagerInterface $entityManager,
     ) {
         $this->bankAccountRepository = $bankAccountRepository;
         $this->transactionRepository = $transactionRepository;
@@ -40,6 +44,7 @@ class BankAccountService
         $this->scheduledTransactionRepository = $scheduledTransactionRepository;
         $this->scheduledTransactionService = $scheduledTransactionService;
         $this->budgetService = $budgetService;
+        $this->entityManager = $entityManager;
     }
 
     public function calculateBankAccountSummary(BankAccount $bankAccount, DateTimeInterface $startDate, DateTimeInterface $endDate): BankAccountSummary
@@ -49,18 +54,17 @@ class BankAccountService
         $summary->setCredit($this->transactionRepository->getValue([$bankAccount], $startDate, $endDate, null, null, null, 1) ?? 0);
         $summary->setDebit($this->transactionRepository->getValue([$bankAccount], $startDate, $endDate, null, null, null, -1) ?? 0);
         $realExpenses = $this->transactionRepository->getValue([$bankAccount], $startDate, $endDate, null, FinancialCategoryTypeEnum::expenseTypes(), null, 0) ?? 0;
-        $realExpenses += $this->transactionRepository->getValue([$bankAccount], $startDate, $endDate, null, [FinancialCategoryTypeEnum::Undefined], null, -1) ?? 0;
+        $realExpenses = bcadd($realExpenses, $this->transactionRepository->getValue([$bankAccount], $startDate, $endDate, null, [FinancialCategoryTypeEnum::Undefined], null, -1) ?? 0, 2);
         $summary->setRealExpenses($realExpenses);
-
         $firstDayOfCurrentMonth = new DateTime('first day of this month');
         $firstDayOfCurrentMonth->setTime(0, 0, 0);
+        $firstDayOfNextMonth = new DateTime('last day of this month');
+        $firstDayOfNextMonth->modify("+1 day")->setTime(0, 0, 0);
 
         $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange(new ArrayCollection([$bankAccount]), $startDate, $endDate);
         $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $startDate, $endDate);
-
         $summary->setProvisionalCredit($summary->getCredit());
         $summary->setProvisionalDebit($summary->getDebit());
-
         /** @var Transaction $transaction */
         foreach ($predictedTransactions as $transaction) {
             if ($transaction->getAmount() >= 0) {
@@ -71,9 +75,9 @@ class BankAccountService
         }
 
         if ($endDate >= $firstDayOfCurrentMonth && $startDate >= $firstDayOfCurrentMonth) {
+            $this->entityManager->clear();
             /** @var BudgetSummary[] $budgetSummaries */
             $budgetSummaries = $this->budgetService->calculateBudgetsSummaries($bankAccount, $startDate, $endDate);
-            /** @var Budget $budget */
             foreach ($budgetSummaries as $budgetSummary) {
                 /** @var BudgetSummary $budgetSummary */
                 if ($budgetSummary->summary > 0) {
@@ -81,21 +85,22 @@ class BankAccountService
                 }
             }
         }
-        
-        if($startDate > $firstDayOfCurrentMonth){
-            $provisionalStartBalanceEndDate = (new DateTime())->setTimestamp($startDate->getTimestamp());
-            $provisionalStartBalanceEndDate->modify('-1 day')->setTime(23, 59, 59);
+
+        $provisionalStartBalanceEndDate = (new DateTime())->setTimestamp($startDate->getTimestamp());
+        $provisionalStartBalanceEndDate->modify('-1 day')->setTime(23, 59, 59);
+        if($firstDayOfNextMonth < $provisionalStartBalanceEndDate){
             $provisionnalTransactionsBeforeDate = 0;
-            $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange(new ArrayCollection([$bankAccount]), $firstDayOfCurrentMonth, $provisionalStartBalanceEndDate);
-            $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactions($scheduledTransactions, $firstDayOfCurrentMonth, $provisionalStartBalanceEndDate);
+            $scheduledTransactions = $this->scheduledTransactionRepository->findScheduledTransactionsByDateRange(new ArrayCollection([$bankAccount]), $firstDayOfNextMonth, $provisionalStartBalanceEndDate);
+            $predictedTransactions = $this->scheduledTransactionService->generatePredictedTransactionsUntilDate($scheduledTransactions, $provisionalStartBalanceEndDate);
             /** @var Transaction $transaction */
             foreach ($predictedTransactions as $transaction) {
                 $provisionnalTransactionsBeforeDate = bcadd($provisionnalTransactionsBeforeDate, $transaction->getAmount(), 2);
             }
-            
+        }
+        if($startDate > $firstDayOfNextMonth){
             /** @var BudgetSummary[] $budgetSummaries */
-            $budgetSummaries = $this->budgetService->calculateBudgetsSummaries($bankAccount, $firstDayOfCurrentMonth, $provisionalStartBalanceEndDate);
-            /** @var Budget $budget */
+            $this->entityManager->clear();
+            $budgetSummaries = $this->budgetService->calculateBudgetsSummaries($bankAccount, $firstDayOfNextMonth, $provisionalStartBalanceEndDate);
             foreach ($budgetSummaries as $budgetSummary) {
                 /** @var BudgetSummary $budgetSummary */
                 if ($budgetSummary->summary > 0) {
@@ -107,7 +112,6 @@ class BankAccountService
         else{
             $summary->setProvisionalStartBalance($summary->getStartBalance());
         }
-
         return $summary;
     }
 
@@ -162,5 +166,14 @@ class BankAccountService
         }
 
         return 0;
+    }
+
+    private function getTheoricalBalanceAtDate(BankAccount $bankAccount, DateTimeInterface $date){
+        //récupérer toutes les transactions réelles avant la date
+
+        //récupérer toutes les transactions prévisionnelles avant la date
+
+        //récupérer tous les budgets avant la date, à partir du mois suivant le mois courant,  si la date est supérieure au mois suivant
+
     }
 }

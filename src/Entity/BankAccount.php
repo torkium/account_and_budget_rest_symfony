@@ -138,4 +138,15 @@ class BankAccount
         }
         return false;
     }
+
+    public function hasProfileAccess(Profile $profile, PermissionEnum $permission): bool
+    {
+        foreach ($this->userBankAccounts as $userBankAccount) {
+            /** @var UserBankAccount $userBankAccount */
+            if ($userBankAccount->getProfile() === $profile && $userBankAccount->getPermissions()->value >= $permission->value) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
